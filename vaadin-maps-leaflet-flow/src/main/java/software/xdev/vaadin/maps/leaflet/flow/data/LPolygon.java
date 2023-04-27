@@ -58,6 +58,13 @@ public class LPolygon implements LComponent
 		this.geometry = new LPolygonGeometry("Polygon", posis);
 	}
 	
+	public LPolygonGeometry getGeometry(){
+		return this.geometry;
+	}
+	public LPolygonOptions getProperties(){
+		return this.properties;
+	}
+	
 	public boolean isStroke()
 	{
 		return this.properties.isStroke();
