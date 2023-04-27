@@ -104,13 +104,13 @@ public class LeafletView extends VerticalLayout
 		this.markerZob = new LMarker(49.673470, 12.160108, "ZoB");
 		this.markerZob.setPopup("Central bus station");
 		
-		final LMarker markerXDev = new LMarker(49.675806677512824, 12.160990185846394);
-		final LIcon xDevLogo = new LIcon("frontend/leaflet/testImage.png");
+		final LMarker markerWithDifferentIcon = new LMarker(49.675806677512824, 12.160990185846394);
+		final LIcon testIcon = new LIcon("frontend/leaflet/testImage.png");
 		
-		xDevLogo.setIconSize(100, 20);
-		xDevLogo.setIconAnchor(50, 0);
-		markerXDev.setPopup("<a href='https://xdev.software/en' target='" + AnchorTarget.BLANK.getValue() + "'>XDEV Software GmbH</a>");
-		markerXDev.setIcon(xDevLogo);
+		testIcon.setIconSize(32, 32);
+		testIcon.setIconAnchor(16, 0);
+		markerWithDifferentIcon.setPopup("<a href='https://vaadin.com/docs/v23/tutorial/installing-and-offline-pwa' target='" + AnchorTarget.BLANK.getValue() + "'>Custom Icon</a>");
+		markerWithDifferentIcon.setIcon(testIcon);
 		
 		final LMarker markerInfo = new LMarker(49.674095, 12.162257);
 		final LDivIcon div = new LDivIcon(
@@ -170,7 +170,7 @@ public class LeafletView extends VerticalLayout
 		this.map.addMarkerClickListener(ev -> System.out.println(ev.getTag()));
 		
 		this.map.addLComponents(
-			markerXDev,
+			markerWithDifferentIcon,
 			markerInfo,
 			this.markerZob,
 			polygonNoc,
