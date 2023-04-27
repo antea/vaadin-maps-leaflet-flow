@@ -50,6 +50,8 @@
 
 		<!-- Dependency-Versions -->
 		<vaadin.version>23.3.7</vaadin.version>
+		<maven.compiler.source>20</maven.compiler.source>
+		<maven.compiler.target>20</maven.compiler.target>
 	</properties>
 
 	<dependencyManagement>
@@ -103,6 +105,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
+			<version>24.0.0</version>
 		</dependency>
 		<!-- JSON JACKSON -->
 		<dependency>

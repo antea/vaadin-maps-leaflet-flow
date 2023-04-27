@@ -1,29 +1,46 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>com.xdev-software</groupId>
-	<artifactId>vaadin-maps-leaflet-flow-root</artifactId>
-	<version>2.0.5-SNAPSHOT</version>
-	<packaging>pom</packaging>
-
-	<organization>
-		<name>XDEV Software</name>
-		<url>https://xdev.software</url>
-	</organization>
-
-	<modules>
-		<module>vaadin-maps-leaflet-flow</module>
-		<module>vaadin-maps-leaflet-flow-demo</module>
-	</modules>
-
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  	
+  <modelVersion>4.0.0</modelVersion>
+  	
+  <groupId>com.xdev-software</groupId>
+  	
+  <artifactId>vaadin-maps-leaflet-flow-root</artifactId>
+  	
+  <version>2.0.5-SNAPSHOT</version>
+  	
+  <packaging>pom</packaging>
+  	
+  <organization>
+    		
+    <name>XDEV Software</name>
+    		
+    <url>https://xdev.software</url>
+    	
+  </organization>
+  	
+  <modules>
+    		
+    <module>vaadin-maps-leaflet-flow</module>
+    		
+    <module>vaadin-maps-leaflet-flow-demo</module>
+    	  
+    <module>matthew-demo</module>
+      
+  </modules>
+  	
+  <licenses>
+    		
+    <license>
+      			
+      <name>Apache License, Version 2.0</name>
+      			
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      			
+      <distribution>repo</distribution>
+      		
+    </license>
+    	
+  </licenses>
+  
 </project>

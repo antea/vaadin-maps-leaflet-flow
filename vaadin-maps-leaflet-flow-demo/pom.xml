@@ -38,6 +38,8 @@
 		<vaadin.version>23.3.7</vaadin.version>
 
 		<org.springframework.boot.version>2.7.9</org.springframework.boot.version>
+		<maven.compiler.source>20</maven.compiler.source>
+		<maven.compiler.target>20</maven.compiler.target>
 	</properties>
 
 	<dependencyManagement>
