@@ -44,6 +44,8 @@ public class LTileLayer
 	private String attribution;
 	private int maxZoom;
 	private String id;
+	private String wmsLayer;
+	
 	
 	public LTileLayer(final String link, final String attribution, final int maxZoom)
 	{
@@ -98,6 +100,16 @@ public class LTileLayer
 		this.id = id;
 	}
 	
+	public String getWmsLayer()
+	{
+		return wmsLayer;
+	}
+	
+	public void setWmsLayer(final String wmsLayer)
+	{
+		this.wmsLayer = wmsLayer;
+	}
+	
 	public JsonObject toJson()
 	{
 		final JsonObject jsonObject = Json.createObject();
@@ -113,4 +125,6 @@ public class LTileLayer
 		
 		return jsonObject;
 	}
+	
+	
 }

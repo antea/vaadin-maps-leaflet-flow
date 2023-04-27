@@ -128,12 +128,13 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		final String removeTileLayerIfPresent = "if (" + CLIENT_TILE_LAYER + ") {"
 			+ CLIENT_MAP + ".removeLayer(" + CLIENT_TILE_LAYER + ");"
 			+ "}";
-		final String addTileLayer = CLIENT_TILE_LAYER + " = L.tileLayer("
+		final String addTileLayer = CLIENT_TILE_LAYER + (tl.getWmsLayer() != null ? " = L.tileLayer.wms(" : " = L.tileLayer(")
 			+ "'" + escapeEcmaScript(tl.getLink()) + "'"
 			+ ",{"
 			+ "attribution: '" + escapeEcmaScript(tl.getAttribution()) + "'"
 			+ ", maxZoom: " + tl.getMaxZoom()
 			+ (tl.getId() != null ? ", id: '" + escapeEcmaScript(tl.getId()) + "'" : "")
+			+ (tl.getWmsLayer() != null ? ", layers: '" + escapeEcmaScript(tl.getWmsLayer()) + "'" : "")
 			+ "}"
 			+ ").addTo(" + CLIENT_MAP + ");";
 		this.getElement().executeJs(removeTileLayerIfPresent + "\n" + addTileLayer);
