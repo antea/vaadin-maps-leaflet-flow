@@ -6,10 +6,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
-import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
-import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
-import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
-import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
+import software.xdev.vaadin.maps.leaflet.flow.data.*;
+
+import java.util.Arrays;
 
 /**
  * The main view contains a button and a click listener.
@@ -36,9 +35,23 @@ public class MainView extends VerticalLayout {
 
 
         var circle = new LCircle(45.45235633938714, -73.46762601648902, 900);
+        var poly = new LPolygon(
+            Arrays.asList(
+                new LPoint(45.45235633938714, -73.46762601648902),
+                new LPoint(46.0, -72.0),
+                new LPoint(46.2, -72.2)
+            )
+        );
+
+        poly.setFill(true);
+        poly.setFillOpacity(1.0);
+        poly.setFillColor("#3366ff");
+        poly.setStroke(false);
+        poly.setPopup("This is a polygon");
+
 
         // add map components to map
-        this.map.addLComponents(anteaMarker, circle);
+        this.map.addLComponents(anteaMarker, circle, poly);
         this.map.setSizeFull();
 
         add(this.map);
