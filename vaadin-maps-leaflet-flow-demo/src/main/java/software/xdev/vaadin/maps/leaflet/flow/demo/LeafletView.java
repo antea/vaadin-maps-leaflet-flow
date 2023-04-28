@@ -20,7 +20,9 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
+import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
+import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
@@ -49,6 +51,10 @@ public class LeafletView extends VerticalLayout
 	private LMarker markerGreek;
 	private LMarker markerBakery;
 	private LMarker markerLeberkaese;
+	
+	private LMarkerClusterGroup normalLayerGroup;
+	
+	private LMarkerClusterGroup lunchLayerGroup;
 	
 	public LeafletView()
 	{
@@ -83,19 +89,15 @@ public class LeafletView extends VerticalLayout
 	{
 		this.viewLunch = !this.viewLunch;
 		
-		final List<LComponent> normalComponents = Arrays.asList(this.markerRathaus, this.markerZob);
-		final List<LComponent> lunchComponents = Arrays.asList(
-			this.circleRange,
-			this.markerPizza,
-			this.markerKebab,
-			this.markerAsia,
-			this.markerGreek,
-			this.markerBakery,
-			this.markerLeberkaese);
-		
 		this.map.setViewPoint(new LCenter(49.675126, 12.160733, this.viewLunch ? 16 : 17));
-		this.map.removeLComponents(this.viewLunch ? normalComponents : lunchComponents);
-		this.map.addLComponents(this.viewLunch ? lunchComponents : normalComponents);
+		this.map.removeLLayerGroup(this.viewLunch ? this.normalLayerGroup : this.lunchLayerGroup);
+		this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+		
+		if(this.viewLunch) {
+			this.map.addLComponents(this.circleRange);
+		} else {
+			this.map.removeLComponents(this.circleRange);
+		}
 		
 		this.btnLunch.setText(this.viewLunch ? "Go back to the normal view" : "Where do XDEV employees go for lunch?");
 	}
@@ -117,6 +119,8 @@ public class LeafletView extends VerticalLayout
 		final LDivIcon div = new LDivIcon(
 			"<p><center><b>Welcome to Weiden in der Oberpfalz!</b></center></p><p>This demo shows you different markers,<br> popups, polygons and other stuff</p>");
 		
+		// maybe find a way to disable icon size so that buildClientJSItems in LMarker does not create it with a default value
+		div.setIconSize(220, 80);
 		markerInfo.setDivIcon(div);
 		
 		final LPolygon polygonNoc = new LPolygon(
@@ -165,6 +169,20 @@ public class LeafletView extends VerticalLayout
 		this.markerLeberkaese = new LMarker(49.673800, 12.160113);
 		this.markerLeberkaese.setPopup("Fast food like Leberkäsesemmeln");
 		
+		
+		this.normalLayerGroup =
+			new LMarkerClusterGroup(Arrays.asList(this.markerRathaus, this.markerZob));
+		
+		this.lunchLayerGroup =
+			new LMarkerClusterGroup(Arrays.asList(
+				this.markerPizza,
+				this.markerKebab,
+				this.markerAsia,
+				this.markerGreek,
+				this.markerBakery,
+				this.markerLeberkaese));
+		
+		
 		this.map = new LMap(49.675126, 12.160733, 17);
 		
 		//this.map.setTileLayer(LTileLayer.DEFAULT_OPENSTREETMAP_TILE);
@@ -183,9 +201,8 @@ public class LeafletView extends VerticalLayout
 		this.map.addLComponents(
 			markerWithDifferentIcon,
 			markerInfo,
-			this.markerZob,
 			polygonNoc,
-			this.markerRathaus,
 			customPolyline);
+		this.map.addLLayerGroup(this.normalLayerGroup);
 	}
 }

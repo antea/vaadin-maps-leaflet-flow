@@ -43,23 +43,31 @@ import com.vaadin.flow.shared.Registration;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
+import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
+@NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @Tag("leaflet-map")
-@JsModule("leaflet/dist/leaflet.js")
+// @JsModule("leaflet/dist/leaflet.js")
+// @JsModule("leaflet.markercluster/dist/leaflet.markercluster.js")
+@JsModule("./leaflet/import-leaflet-with-markercluster.js")
 @CssImport("leaflet/dist/leaflet.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.css")
 @CssImport("./leaflet/leaflet-custom.css")
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
 	private static final String CLIENT_MAP = "this.map";
 	private static final String CLIENT_COMPONENTS = "this.components";
+	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
+	private final List<LLayerGroup> layerGroups = new ArrayList<>();
 	
 	public LMap()
 	{
@@ -73,6 +81,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(CLIENT_MAP + "="
 			+ "new L.map(this.getElementsByTagName('div')[0]);");
 		this.getElement().executeJs(CLIENT_COMPONENTS + "="
+			+ "new Array();");
+		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
 	}
 	
@@ -219,6 +229,33 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
+	public void addLLayerGroup(final LLayerGroup lLayerGroup)
+	{
+		this.layerGroups.add(lLayerGroup);
+		try
+		{
+			this.getElement().executeJs(lLayerGroup.buildClientJSItems() + "\n"
+				+ CLIENT_MAP + ".addLayer(item);\n"
+				+ CLIENT_LAYER_GROUPS + ".push(item);");
+		}
+		catch(final JsonProcessingException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void removeLLayerGroup(final LLayerGroup lLayerGroup)
+	{
+		final int index = this.layerGroups.indexOf(lLayerGroup);
+		
+		if(index != -1 && this.layerGroups.remove(lLayerGroup))
+		{
+			this.getElement().executeJs("let delItem = " + CLIENT_LAYER_GROUPS + "[" + index + "];\n"
+				+ CLIENT_MAP + ".removeLayer(delItem);\n"
+				+ CLIENT_LAYER_GROUPS + ".splice(" + index + ",1);");
+		}
+	}
+	
 	/**
 	 * Returns a new component list
 	 */
@@ -226,6 +263,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	{
 		return this.components;
 	}
+	
+	
 	
 	public LCenter getCenter()
 	{
