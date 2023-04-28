@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
+/**
+ * Leaflet LayerGroup under the hood
+ */
 public class LLayerGroup
 {
 	private final List<LComponent> components = new ArrayList<>();

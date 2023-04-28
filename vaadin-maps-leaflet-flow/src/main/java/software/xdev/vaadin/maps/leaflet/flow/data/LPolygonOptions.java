@@ -23,6 +23,7 @@ public class LPolygonOptions
 	private int weight = 3;
 	private String lineJoin = "round";
 	
+	// It' important that the default stays false because LPolyline also uses LPolygonOptions.
 	private boolean fill = false;
 	private String fillColor = "#ffffff";
 	private double fillOpacity = 0.2;

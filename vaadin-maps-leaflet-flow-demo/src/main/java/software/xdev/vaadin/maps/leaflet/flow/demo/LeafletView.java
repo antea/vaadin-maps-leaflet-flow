@@ -119,7 +119,9 @@ public class LeafletView extends VerticalLayout
 		final LDivIcon div = new LDivIcon(
 			"<p><center><b>Welcome to Weiden in der Oberpfalz!</b></center></p><p>This demo shows you different markers,<br> popups, polygons and other stuff</p>");
 		
-		// maybe find a way to disable icon size so that buildClientJSItems in LMarker does not create it with a default value
+		// maybe find a way to disable icon size
+		// so that buildClientJSItems in LMarker does not create it with a default value that is too small or too big
+		// forcing us to do this vvv
 		div.setIconSize(220, 80);
 		markerInfo.setDivIcon(div);
 		
