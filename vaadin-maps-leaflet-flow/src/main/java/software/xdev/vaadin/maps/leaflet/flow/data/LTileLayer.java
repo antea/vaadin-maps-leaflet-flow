@@ -100,8 +100,8 @@ public class LTileLayer
 		this.id = id;
 	}
 	
-	// If you set the WMS layer, LMap will know to use the WMS format
-	// otherwise it wmsLayer will stay null and LMap will know to use the normal tilelayer
+	// If you set the wmsLayer, LMap will know to use the WMS format
+	// otherwise wmsLayer will stay null and LMap will know to use the normal tilelayer.
 	public String getWmsLayer()
 	{
 		return wmsLayer;
