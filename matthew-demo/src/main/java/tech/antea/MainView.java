@@ -38,8 +38,8 @@ public class MainView extends VerticalLayout {
         var poly = new LPolygon(
             Arrays.asList(
                 new LPoint(45.45235633938714, -73.46762601648902),
-                new LPoint(46.0, -72.0),
-                new LPoint(46.2, -72.2)
+                new LPoint(45.6, -73),
+                new LPoint(45.7, -73)
             )
         );
 
