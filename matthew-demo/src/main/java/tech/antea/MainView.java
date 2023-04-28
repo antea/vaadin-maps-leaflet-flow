@@ -11,22 +11,17 @@ import software.xdev.vaadin.maps.leaflet.flow.data.*;
 import java.util.Arrays;
 
 /**
- * The main view contains a button and a click listener.
+ * Main View for leaflet add-on demo
  */
 @Route
 public class MainView extends VerticalLayout {
     private LMap map;
 
     public MainView() {
-//        Button button = new Button("Click me",
-//                event -> Notification.show("Clicked!"));
-
-        // coordinates of Montreal Antea office
-        // 45.45235633938714, -73.46762601648902
+        // set map center to coordinates of Montreal Antea office
         this.map = new LMap(45.45235633938714, -73.4676260164890, 17);
 
-
-        final LMarker anteaMarker = new LMarker(45.45235633938714, -73.46762601648902);
+        LMarker anteaMarker = new LMarker(45.45235633938714, -73.46762601648902);
         anteaMarker.setPopup("Antea Montreal Office");
 
         // set custom icon
@@ -43,6 +38,7 @@ public class MainView extends VerticalLayout {
             )
         );
 
+        // adjust polygon properties
         poly.setFill(true);
         poly.setFillOpacity(1.0);
         poly.setFillColor("#3366ff");
