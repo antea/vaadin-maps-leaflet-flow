@@ -132,6 +132,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "'" + escapeEcmaScript(tl.getLink()) + "'"
 			+ ",{"
 			+ "attribution: '" + escapeEcmaScript(tl.getAttribution()) + "'"
+			+ ", layers: " + escapeEcmaScript(tl.getLayers())
 			+ ", maxZoom: " + tl.getMaxZoom()
 			+ (tl.getId() != null ? ", id: '" + escapeEcmaScript(tl.getId()) + "'" : "")
 			+ "}"

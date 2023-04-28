@@ -35,26 +35,32 @@ public class LTileLayer
 	 * @see <a href="https://operations.osmfoundation.org/policies/tiles/">Usage Policy</a>
 	 */
 	public static final LTileLayer DEFAULT_OPENSTREETMAP_TILE = new LTileLayer(
-		"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-		"© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
-		18
+		"http://ows.mundialis.de/services/service?",
+		"",
+		18,
+		"TOPO-WMS"
 	);
+	
+	// "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+	// "© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
 	
 	private String link;
 	private String attribution;
 	private int maxZoom;
 	private String id;
+	private String layers;
 	
-	public LTileLayer(final String link, final String attribution, final int maxZoom)
+	public LTileLayer(final String link, final String attribution, final int maxZoom, final String layers)
 	{
-		this(link, attribution, maxZoom, null);
+		this(link, attribution, maxZoom, null, layers);
 	}
 	
-	public LTileLayer(final String link, final String attribution, final int maxZoom, final String id)
+	public LTileLayer(final String link, final String attribution, final int maxZoom, final String layers, final String id)
 	{
 		this.link = link;
 		this.attribution = attribution;
 		this.maxZoom = maxZoom;
+		this.layers = layers;
 		this.id = id;
 	}
 	
@@ -96,6 +102,14 @@ public class LTileLayer
 	public void setId(final String id)
 	{
 		this.id = id;
+	}
+	public String getLayers()
+	{
+		return this.layers;
+	}
+	public void setLayers(final String layers)
+	{
+		this.layers = layers;
 	}
 	
 	public JsonObject toJson()
