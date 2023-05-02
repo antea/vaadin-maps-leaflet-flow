@@ -206,5 +206,6 @@ public class LeafletView extends VerticalLayout
 			polygonNoc,
 			customPolyline);
 		this.map.addLLayerGroup(this.normalLayerGroup);
+		this.map.addDrawControl();
 	}
 }

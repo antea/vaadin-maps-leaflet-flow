@@ -50,15 +50,17 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
+@NpmPackage(value = "leaflet-draw", version = "1.0.4")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
 // Here is the bug issue: https://github.com/vaadin/flow/issues/15825
-@JsModule("./leaflet/import-leaflet-with-markercluster.js")
+@JsModule("./leaflet/import-leaflet-with-plugins.js")
 // importing the leaflet css
 @CssImport("leaflet/dist/leaflet.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
+@CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
@@ -230,6 +232,26 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "delItem.remove();\n"
 				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
 		}
+	}
+	
+	public void addDrawControl()
+	{
+		this.getElement().executeJs(
+			"var drawnItems = new L.FeatureGroup();\n"
+				+ CLIENT_MAP + ".addLayer(drawnItems);\n"
+				+ "     var drawControl = new L.Control.Draw({\n"
+				+ "         edit: {\n"
+				+ "             featureGroup: drawnItems\n"
+				+ "         },\n"
+				+ "			draw: {\n"
+				+ "    			rectangle: { showArea: false }, \n"
+				+ "			}"
+				+ "     });\n"
+				+ CLIENT_MAP + ".addControl(drawControl);"
+			
+		);
+		// we disable rectangle showArea to avoid running code with bug (in leaflet.draw)
+		// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
 	}
 	
 	public void addLLayerGroup(final LLayerGroup lLayerGroup)
