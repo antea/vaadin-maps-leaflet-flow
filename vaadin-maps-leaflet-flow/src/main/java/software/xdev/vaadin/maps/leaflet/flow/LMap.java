@@ -234,7 +234,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
-	public void addDrawControl()
+	public void initDrawControl()
 	{
 		this.getElement().executeJs(
 			"let editableLayers = new L.FeatureGroup();\n"

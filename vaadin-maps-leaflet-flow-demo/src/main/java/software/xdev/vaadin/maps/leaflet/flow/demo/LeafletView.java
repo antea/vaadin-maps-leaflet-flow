@@ -1,7 +1,6 @@
 package software.xdev.vaadin.maps.leaflet.flow.demo;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
@@ -13,14 +12,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-import com.vaadin.flow.router.RouteAlias;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
-import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
-import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
@@ -206,6 +202,6 @@ public class LeafletView extends VerticalLayout
 			polygonNoc,
 			customPolyline);
 		this.map.addLLayerGroup(this.normalLayerGroup);
-		this.map.addDrawControl();
+		this.map.initDrawControl();
 	}
 }
