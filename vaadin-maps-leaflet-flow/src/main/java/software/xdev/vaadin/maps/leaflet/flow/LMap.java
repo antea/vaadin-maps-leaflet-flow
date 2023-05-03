@@ -237,20 +237,30 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	public void addDrawControl()
 	{
 		this.getElement().executeJs(
-			"var drawnItems = new L.FeatureGroup();\n"
-				+ CLIENT_MAP + ".addLayer(drawnItems);\n"
+			"let editableLayers = new L.FeatureGroup();\n"
+				+ CLIENT_MAP + ".addLayer(editableLayers);\n"
 				+ "     var drawControl = new L.Control.Draw({\n"
 				+ "         edit: {\n"
-				+ "             featureGroup: drawnItems\n"
+				+ "             featureGroup: editableLayers\n"
 				+ "         },\n"
 				+ "			draw: {\n"
 				+ "    			rectangle: { showArea: false }, \n"
 				+ "			}"
 				+ "     });\n"
 				+ CLIENT_MAP + ".addControl(drawControl);"
+				+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
+				+ "        var type = e.layerType,\n"
+				+ "            layer = e.layer;\n"
+				+ "    \n"
+				+ "        if (type === 'marker') {\n"
+				+ "            layer.bindPopup('A popup!');\n"
+				+ "        }\n"
+				+ "    \n"
+				+ "        editableLayers.addLayer(layer);\n"
+				+ "    });"
 			
 		);
-		// we disable rectangle showArea to avoid running code with bug (in leaflet.draw)
+		// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
 		// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
 	}
 	
