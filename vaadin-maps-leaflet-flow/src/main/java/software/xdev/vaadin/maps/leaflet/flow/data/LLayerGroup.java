@@ -41,6 +41,15 @@ public class LLayerGroup
 	
 	public String buildClientJSItems() throws JsonProcessingException
 	{
+		
+		/*
+			// Under the hood, this is what is happening bellow
+			let layerGroup = L.layerGroup();
+			layerGroup.addLayer(L.marker(getRandomLatLng(map)));
+			... Add more layers (ie components) ...
+			map.addLayer(markers);
+		*/
+		
 		// check LMap.addLComponent to understand why we do let item
 		StringBuilder jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "()");
 		for(int i = 0; i < this.components.size(); i++)
