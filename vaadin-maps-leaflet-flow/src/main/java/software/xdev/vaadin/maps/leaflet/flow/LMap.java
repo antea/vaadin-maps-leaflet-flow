@@ -63,9 +63,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
 @CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
-
-// @JsModule("leaflet-mouse-position/src/L.Control.MousePosition.js")
-// @CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
+@CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
 
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
@@ -94,6 +92,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "new Array();");
 		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
+		
+		// display map coordinates of mouse position
+		this.enableMousePosition();
+
 	}
 	
 	public LMap(final double lat, final double lon, final int zoom)
@@ -127,6 +129,16 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "[" + viewpoint.getLat() + ", " + viewpoint.getLon() + "], "
 			+ viewpoint.getZoom()
 			+ ");");
+	}
+	
+	/**
+	 * Executes javascript code to display coordinates of mouse position
+	 * using the leaflet-mouse-position package https://www.npmjs.com/package/leaflet-mouse-position
+	 *
+	*/
+	public void enableMousePosition() {
+		this.getElement().executeJs("L.control.mousePosition({prefix: 'Coordinates: '}).addTo("
+			+ CLIENT_MAP + ");");
 	}
 	
 	/**
