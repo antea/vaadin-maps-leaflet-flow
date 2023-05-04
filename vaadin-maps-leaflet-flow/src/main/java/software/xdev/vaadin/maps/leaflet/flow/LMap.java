@@ -51,6 +51,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet", version = "1.8.0")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "leaflet-draw", version = "1.0.4")
+@NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -62,6 +63,10 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
 @CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
+
+@JsModule("leaflet-mouse-position/src/L.Control.MousePosition.js")
+@CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
+
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
 	private static final String CLIENT_MAP = "this.map";
