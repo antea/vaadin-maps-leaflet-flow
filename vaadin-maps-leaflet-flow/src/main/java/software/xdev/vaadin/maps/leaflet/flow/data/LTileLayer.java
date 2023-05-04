@@ -38,7 +38,7 @@ public class LTileLayer
 		"http://ows.mundialis.de/services/service?",
 		"",
 		18,
-		"TOPO-WMS"
+		"TOPO-OSM-WMS"
 	);
 	
 	// "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -52,7 +52,7 @@ public class LTileLayer
 	
 	public LTileLayer(final String link, final String attribution, final int maxZoom, final String layers)
 	{
-		this(link, attribution, maxZoom, null, layers);
+		this(link, attribution, maxZoom, layers, null);
 	}
 	
 	public LTileLayer(final String link, final String attribution, final int maxZoom, final String layers, final String id)
