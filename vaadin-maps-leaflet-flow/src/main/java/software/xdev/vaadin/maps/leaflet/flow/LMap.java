@@ -64,8 +64,8 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
 
-@JsModule("leaflet-mouse-position/src/L.Control.MousePosition.js")
-@CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
+// @JsModule("leaflet-mouse-position/src/L.Control.MousePosition.js")
+// @CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
 
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
