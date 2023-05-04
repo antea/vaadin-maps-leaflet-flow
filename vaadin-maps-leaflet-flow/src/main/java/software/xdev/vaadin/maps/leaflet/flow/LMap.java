@@ -43,23 +43,36 @@ import com.vaadin.flow.shared.Registration;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
+import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
+@NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
+@NpmPackage(value = "leaflet-draw", version = "1.0.4")
 @Tag("leaflet-map")
-@JsModule("leaflet/dist/leaflet.js")
+// If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
+// because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
+// Here is the bug issue: https://github.com/vaadin/flow/issues/15825
+@JsModule("./leaflet/import-leaflet-with-plugins.js")
+// importing the leaflet css
 @CssImport("leaflet/dist/leaflet.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.css")
+@CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
 	private static final String CLIENT_MAP = "this.map";
 	private static final String CLIENT_COMPONENTS = "this.components";
+	// Were the layer Groups will be stored under the hood.
+	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
+	private final List<LLayerGroup> layerGroups = new ArrayList<>();
 	
 	public LMap()
 	{
@@ -73,6 +86,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(CLIENT_MAP + "="
 			+ "new L.map(this.getElementsByTagName('div')[0]);");
 		this.getElement().executeJs(CLIENT_COMPONENTS + "="
+			+ "new Array();");
+		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
 	}
 	
@@ -128,12 +143,13 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		final String removeTileLayerIfPresent = "if (" + CLIENT_TILE_LAYER + ") {"
 			+ CLIENT_MAP + ".removeLayer(" + CLIENT_TILE_LAYER + ");"
 			+ "}";
-		final String addTileLayer = CLIENT_TILE_LAYER + " = L.tileLayer("
+		final String addTileLayer = CLIENT_TILE_LAYER + (tl.getWmsLayer() != null ? " = L.tileLayer.wms(" : " = L.tileLayer(")
 			+ "'" + escapeEcmaScript(tl.getLink()) + "'"
 			+ ",{"
 			+ "attribution: '" + escapeEcmaScript(tl.getAttribution()) + "'"
 			+ ", maxZoom: " + tl.getMaxZoom()
 			+ (tl.getId() != null ? ", id: '" + escapeEcmaScript(tl.getId()) + "'" : "")
+			+ (tl.getWmsLayer() != null ? ", layers: '" + escapeEcmaScript(tl.getWmsLayer()) + "'" : "")
 			+ "}"
 			+ ").addTo(" + CLIENT_MAP + ");";
 		this.getElement().executeJs(removeTileLayerIfPresent + "\n" + addTileLayer);
@@ -218,6 +234,63 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
+	public void initDrawControl()
+	{
+		this.getElement().executeJs(
+			"let editableLayers = new L.FeatureGroup();\n"
+				+ CLIENT_MAP + ".addLayer(editableLayers);\n"
+				+ "     var drawControl = new L.Control.Draw({\n"
+				+ "         edit: {\n"
+				+ "             featureGroup: editableLayers\n"
+				+ "         },\n"
+				+ "			draw: {\n"
+				+ "    			rectangle: { showArea: false }, \n"
+				+ "			}"
+				+ "     });\n"
+				+ CLIENT_MAP + ".addControl(drawControl);"
+				+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
+				+ "        var type = e.layerType,\n"
+				+ "            layer = e.layer;\n"
+				+ "    \n"
+				+ "        if (type === 'marker') {\n"
+				+ "            layer.bindPopup('A popup!');\n"
+				+ "        }\n"
+				+ "    \n"
+				+ "        editableLayers.addLayer(layer);\n"
+				+ "    });"
+			
+		);
+		// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
+		// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
+	}
+	
+	public void addLLayerGroup(final LLayerGroup lLayerGroup)
+	{
+		this.layerGroups.add(lLayerGroup);
+		try
+		{
+			this.getElement().executeJs(lLayerGroup.buildClientJSItems() + "\n"
+				+ CLIENT_MAP + ".addLayer(item);\n"
+				+ CLIENT_LAYER_GROUPS + ".push(item);");
+		}
+		catch(final JsonProcessingException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void removeLLayerGroup(final LLayerGroup lLayerGroup)
+	{
+		final int index = this.layerGroups.indexOf(lLayerGroup);
+		
+		if(index != -1 && this.layerGroups.remove(lLayerGroup))
+		{
+			this.getElement().executeJs("let delItem = " + CLIENT_LAYER_GROUPS + "[" + index + "];\n"
+				+ CLIENT_MAP + ".removeLayer(delItem);\n"
+				+ CLIENT_LAYER_GROUPS + ".splice(" + index + ",1);");
+		}
+	}
+	
 	/**
 	 * Returns a new component list
 	 */
@@ -225,6 +298,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	{
 		return this.components;
 	}
+	
+	
 	
 	public LCenter getCenter()
 	{
