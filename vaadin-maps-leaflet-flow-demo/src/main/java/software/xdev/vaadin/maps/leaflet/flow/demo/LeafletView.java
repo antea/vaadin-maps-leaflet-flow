@@ -16,6 +16,7 @@ import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
+import software.xdev.vaadin.maps.leaflet.flow.data.LFeatureGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
@@ -202,6 +203,10 @@ public class LeafletView extends VerticalLayout
 			polygonNoc,
 			customPolyline);
 		this.map.addLLayerGroup(this.normalLayerGroup);
-		this.map.initDrawControl();
+		
+		LFeatureGroup editableLFeatureGroup =
+			new LFeatureGroup();
+		
+		this.map.initDrawControl(editableLFeatureGroup);
 	}
 }

@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LLayerGroup
 {
 	private final List<LComponent> components = new ArrayList<>();
+	private String buildClientJSVarName = "item";
 	
 	
 	public LLayerGroup(final LComponent... lComponents)
@@ -51,7 +52,7 @@ public class LLayerGroup
 		*/
 		
 		// check LMap.addLComponent to understand why we do let item
-		StringBuilder jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "()");
+		StringBuilder jsCode = new StringBuilder("let "+ getBuildClientJSVarName() + " = L." + getLeafletComponentName() + "()");
 		for(int i = 0; i < this.components.size(); i++)
 		{
 			// this is to avoid the item variable being instantiated with the same variable name
@@ -65,12 +66,20 @@ public class LLayerGroup
 					? "item" + i + ".bindPopup('" + escapeEcmaScript(this.components.get(i).getPopup()) + "');\n"
 					: "")
 				.append("\n")
-				.append("item.addLayer(item" + i + ")");
+				.append(getBuildClientJSVarName() + ".addLayer(item" + i + ")");
 			
 		}
 		
 		return jsCode.toString();
 	}
 	
+	public String getBuildClientJSVarName()
+	{
+		return buildClientJSVarName;
+	}
 	
+	public void setBuildClientJSVarName(final String buildClientJSVarName)
+	{
+		this.buildClientJSVarName = buildClientJSVarName;
+	}
 }

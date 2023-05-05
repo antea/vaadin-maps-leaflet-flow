@@ -43,7 +43,10 @@ import com.vaadin.flow.shared.Registration;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
+import software.xdev.vaadin.maps.leaflet.flow.data.LFeatureGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
+import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
+import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
@@ -69,6 +72,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// Were the layer Groups will be stored under the hood.
 	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
+	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this.markerClusterGroup";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
@@ -84,11 +88,15 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		
 		// bind map to div
 		this.getElement().executeJs(CLIENT_MAP + "="
-			+ "new L.map(this.getElementsByTagName('div')[0]);");
+			+ "new L.map(this.getElementsByTagName('div')[0]);\n"
+			+ CLIENT_MAP + "._layersMaxZoom = 19;"); // why am I doing this: https://github.com/mapbox/mapbox-gl-leaflet/issues/113
 		this.getElement().executeJs(CLIENT_COMPONENTS + "="
 			+ "new Array();");
 		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
+		this.getElement().executeJs(CLIENT_MARKER_CLUSTER_GROUP + "="
+			+ "L.markerClusterGroup();\n"
+			+ CLIENT_MAP + ".addLayer(" + CLIENT_MARKER_CLUSTER_GROUP + ");");
 	}
 	
 	public LMap(final double lat, final double lon, final int zoom)
@@ -191,11 +199,12 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		try
 		{
 			this.getElement().executeJs(lComponent.buildClientJSItems() + "\n"
-				+ "item.addTo(" + CLIENT_MAP + ");\n"
+				//+ "item.addTo(" + CLIENT_MAP + ");\n" // item is the LComponent in js
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
-				+ CLIENT_COMPONENTS + ".push(item);");
+				+ CLIENT_COMPONENTS + ".push(item);\n"
+				+ CLIENT_MARKER_CLUSTER_GROUP + ".addLayer(item);\n");
 		}
 		catch(final JsonProcessingException e)
 		{
@@ -229,39 +238,62 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		if(index != -1 && this.components.remove(lComponent))
 		{
 			this.getElement().executeJs("let delItem = " + CLIENT_COMPONENTS + "[" + index + "];\n"
-				+ "delItem.remove();\n"
+				//+ "delItem.remove();\n"
+				+ CLIENT_MARKER_CLUSTER_GROUP + ".removeLayer(delItem);\n"
 				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
 		}
 	}
 	
-	public void initDrawControl()
+	public void initDrawControl(LFeatureGroup editableFeatureGroup)
 	{
-		this.getElement().executeJs(
-			"let editableLayers = new L.FeatureGroup();\n"
-				+ CLIENT_MAP + ".addLayer(editableLayers);\n"
-				+ "     var drawControl = new L.Control.Draw({\n"
-				+ "         edit: {\n"
-				+ "             featureGroup: editableLayers\n"
-				+ "         },\n"
-				+ "			draw: {\n"
-				+ "    			rectangle: { showArea: false }, \n"
-				+ "			}"
-				+ "     });\n"
-				+ CLIENT_MAP + ".addControl(drawControl);"
-				+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
-				+ "        var type = e.layerType,\n"
-				+ "            layer = e.layer;\n"
-				+ "    \n"
-				+ "        if (type === 'marker') {\n"
-				+ "            layer.bindPopup('A popup!');\n"
-				+ "        }\n"
-				+ "    \n"
-				+ "        editableLayers.addLayer(layer);\n"
-				+ "    });"
+		if(editableFeatureGroup == null){
+			throw new IllegalArgumentException("editableFeatureGroup cant be null");
+		}
+		try
+		{
+			editableFeatureGroup.setBuildClientJSVarName("editableFeatureGroup");
+			this.getElement().executeJs(
+				editableFeatureGroup.buildClientJSItems()+"\n"//"let editableFeatureGroup = new L.FeatureGroup();\n"
+					+ CLIENT_MAP + ".addLayer(editableFeatureGroup);\n"
+					+ "     var drawControl = new L.Control.Draw({\n"
+					+ "         edit: {\n"
+					+ "             featureGroup: editableFeatureGroup\n"
+					+ "         },\n"
+					+ "			draw: {\n"
+					+ "    			rectangle: { showArea: false }, \n"
+					+ "			}"
+					+ "     });\n"
+					+ CLIENT_MAP + ".addControl(drawControl);"
+					+ "let addMarkerToClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".addLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
+					+ "let removeMarkerFromClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".removeLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
+					+ "let clearMarkerFromClusterGroup = () => "+CLIENT_MARKER_CLUSTER_GROUP+".clearLayers();\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
+					+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
+					+ "        var type = e.layerType,\n"
+					+ "            layer = e.layer;\n"
+					+ "        	editableFeatureGroup.addLayer(layer);\n"
+					+ "            addMarkerToClusterGroup(layer);\n" // important: add this after adding to editableFeatureGroup
+					+ "    \n"
+					+ "        if (type === 'marker') {\n"
+					+ "        } else {\n"
+
+					+ "        }\n"
+					+ "    });"
+					+ CLIENT_MAP + ".on(L.Draw.Event.DELETED, function (e) {\n"
+					+ "  e.layers.eachLayer(layer => {\n"
+					+ "    removeMarkerFromClusterGroup(layer);\n"
+					+ "  });\n"
+					+ "    });\n"
+					
 			
-		);
-		// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
-		// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
+			);
+			// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
+			// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
+		}
+		catch(final JsonProcessingException e)
+		{
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	public void addLLayerGroup(final LLayerGroup lLayerGroup)
