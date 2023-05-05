@@ -78,7 +78,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// Were the layer Groups will be stored under the hood.
 	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
-	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this. ";
+	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this.markerClusterGroup";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
