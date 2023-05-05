@@ -44,6 +44,7 @@ import com.vaadin.flow.shared.Registration;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
+import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
@@ -69,6 +70,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// Were the layer Groups will be stored under the hood.
 	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
+	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this.markerClusterGroup";
+	public static final String CLIENT_ENABLE_MAP_DRAGGING_FUNCTION = "this.enableMapDragging";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
@@ -84,11 +87,17 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		
 		// bind map to div
 		this.getElement().executeJs(CLIENT_MAP + "="
-			+ "new L.map(this.getElementsByTagName('div')[0]);");
+			+ "new L.map(this.getElementsByTagName('div')[0],{scrollWheelZoom: 'center'});\n"
+			+ CLIENT_MAP + "._layersMaxZoom = 19;\n"  // why am I doing this: https://github.com/mapbox/mapbox-gl-leaflet/issues/113);
+			+ CLIENT_ENABLE_MAP_DRAGGING_FUNCTION + " = () => "+ CLIENT_MAP +".dragging.enable();\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
+		);
 		this.getElement().executeJs(CLIENT_COMPONENTS + "="
 			+ "new Array();");
 		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
+		this.getElement().executeJs(CLIENT_MARKER_CLUSTER_GROUP + "="
+			+ "L.markerClusterGroup();\n"
+			+ CLIENT_MAP + ".addLayer(" + CLIENT_MARKER_CLUSTER_GROUP + ");");
 	}
 	
 	public LMap(final double lat, final double lon, final int zoom)
@@ -191,7 +200,9 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		try
 		{
 			this.getElement().executeJs(lComponent.buildClientJSItems() + "\n"
-				+ "item.addTo(" + CLIENT_MAP + ");\n"
+				+ (lComponent instanceof LMarker
+				? CLIENT_MARKER_CLUSTER_GROUP + ".addLayer(item);\n"
+				: "item.addTo(" + CLIENT_MAP + ");\n")
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
@@ -229,7 +240,9 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		if(index != -1 && this.components.remove(lComponent))
 		{
 			this.getElement().executeJs("let delItem = " + CLIENT_COMPONENTS + "[" + index + "];\n"
-				+ "delItem.remove();\n"
+				+ (lComponent instanceof LMarker
+				? CLIENT_MARKER_CLUSTER_GROUP + ".removeLayer(delItem);\n"
+				: "delItem.remove();\n")
 				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
 		}
 	}
@@ -241,6 +254,19 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "  position: 'topleft',  \n"
 				//+ "  drawCircle: false,  \n"
 				+ "}); "
+				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_MARKER_CLUSTER_GROUP +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
+				+ CLIENT_MAP + ".on('pm:create', (e) => {\n"
+				+ "	 if(e.layer instanceof L.Marker) {\n"
+				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
+				+ "     addMarkerToClusterGroup(e.layer);\n"
+				+ "     e.layer.on('pm:edit', (e) => {\n"
+				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+				+ "     });"
+				+ "  }"
+				+ "});"
+				// + CLIENT_MAP + ".on('pm:markerdragend', (e) => {\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
+				// + "  enableMapDragging();"
+				// + "});"
 		);
 	}
 	
