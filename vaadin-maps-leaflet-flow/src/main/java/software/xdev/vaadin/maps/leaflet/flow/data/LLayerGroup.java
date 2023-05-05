@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LLayerGroup
 {
 	private final List<LComponent> components = new ArrayList<>();
-	
+	private int clusterRadius = 2;
 	
 	public LLayerGroup(final LComponent... lComponents)
 	{
@@ -42,7 +42,15 @@ public class LLayerGroup
 	public String buildClientJSItems() throws JsonProcessingException
 	{
 		// check LMap.addLComponent to understand why we do let item
-		StringBuilder jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "()");
+		StringBuilder jsCode;
+		if (getLeafletComponentName() == "markerClusterGroup"){
+			jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "({\n"
+				+ "maxClusterRadius: " + this.clusterRadius + "\n"
+				+ "});");
+		} else {
+			jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "()");
+		}
+		
 		for(int i = 0; i < this.components.size(); i++)
 		{
 			// this is to avoid the item variable being instantiated with the same variable name
@@ -63,5 +71,7 @@ public class LLayerGroup
 		return jsCode.toString();
 	}
 	
-	
+	public void setClusterRadius(int clusterRadius) {
+		this.clusterRadius = clusterRadius;
+	}
 }
