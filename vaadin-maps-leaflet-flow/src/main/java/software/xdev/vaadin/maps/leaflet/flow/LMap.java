@@ -51,6 +51,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet", version = "1.8.0")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "leaflet-draw", version = "1.0.4")
+@NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -62,6 +63,8 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
 @CssImport("leaflet-draw/dist/leaflet.draw.css")
 @CssImport("./leaflet/leaflet-custom.css")
+@CssImport("leaflet-mouse-position/src/L.Control.MousePosition.css")
+
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
 	private static final String CLIENT_MAP = "this.map";
@@ -89,6 +92,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "new Array();");
 		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
+		
+		// display map coordinates of mouse position
+		this.enableMousePosition();
+
 	}
 	
 	public LMap(final double lat, final double lon, final int zoom)
@@ -122,6 +129,16 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "[" + viewpoint.getLat() + ", " + viewpoint.getLon() + "], "
 			+ viewpoint.getZoom()
 			+ ");");
+	}
+	
+	/**
+	 * Executes javascript code to display coordinates of mouse position
+	 * using the leaflet-mouse-position package https://www.npmjs.com/package/leaflet-mouse-position
+	 *
+	*/
+	public void enableMousePosition() {
+		this.getElement().executeJs("L.control.mousePosition({prefix: 'Coordinates: '}).addTo("
+			+ CLIENT_MAP + ");");
 	}
 	
 	/**

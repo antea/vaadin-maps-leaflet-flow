@@ -4,3 +4,4 @@
 import 'leaflet/dist/leaflet.js';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import 'leaflet-draw/dist/leaflet.draw.js';
+import 'leaflet-mouse-position/src/L.Control.MousePosition.js';
