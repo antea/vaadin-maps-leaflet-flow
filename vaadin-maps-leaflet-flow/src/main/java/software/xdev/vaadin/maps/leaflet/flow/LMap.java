@@ -21,7 +21,10 @@ import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -252,15 +255,16 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		if(editableFeatureGroup == null){
 			throw new IllegalArgumentException("editableFeatureGroup cant be null");
 		}
-		String jsCode = "";
-		File jsFile = new File("JavaScript/DrawControl.js");
+		
+		String filePath = "JavaScript/DrawControl.js";
+		String jsCode = null;
 		try {
-			jsCode = new String(Files.readAllBytes(jsFile.toPath()));
-		}
-		catch(IOException e) {
-			System.err.println("Error reading JavaScript file DrawControl.jsb" + e.getMessage());
+			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
 		}
 		
+		System.out.println(jsCode);
 		try
 		{
 			editableFeatureGroup.setBuildClientJSVarName("editableFeatureGroup");
