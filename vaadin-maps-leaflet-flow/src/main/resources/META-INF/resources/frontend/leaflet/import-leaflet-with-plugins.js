@@ -3,4 +3,4 @@
 // Here is the bug issue: https://github.com/vaadin/flow/issues/15825
 import 'leaflet/dist/leaflet.js';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
-import 'leaflet-draw/dist/leaflet.draw.js';
+import '@geoman-io/leaflet-geoman-free';

@@ -50,7 +50,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
-@NpmPackage(value = "leaflet-draw", version = "1.0.4")
+@NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -60,7 +60,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @CssImport("leaflet/dist/leaflet.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
-@CssImport("leaflet-draw/dist/leaflet.draw.css")
+@CssImport("@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css")
 @CssImport("./leaflet/leaflet-custom.css")
 public class LMap extends Component implements HasSize, HasStyle, HasComponents
 {
@@ -234,34 +234,14 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
-	public void initDrawControl()
+	public void initGeomanControls()
 	{
 		this.getElement().executeJs(
-			"let editableLayers = new L.FeatureGroup();\n"
-				+ CLIENT_MAP + ".addLayer(editableLayers);\n"
-				+ "     var drawControl = new L.Control.Draw({\n"
-				+ "         edit: {\n"
-				+ "             featureGroup: editableLayers\n"
-				+ "         },\n"
-				+ "			draw: {\n"
-				+ "    			rectangle: { showArea: false }, \n"
-				+ "			}"
-				+ "     });\n"
-				+ CLIENT_MAP + ".addControl(drawControl);"
-				+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
-				+ "        var type = e.layerType,\n"
-				+ "            layer = e.layer;\n"
-				+ "    \n"
-				+ "        if (type === 'marker') {\n"
-				+ "            layer.bindPopup('A popup!');\n"
-				+ "        }\n"
-				+ "    \n"
-				+ "        editableLayers.addLayer(layer);\n"
-				+ "    });"
-			
+			CLIENT_MAP + ".pm.addControls({  \n"
+				+ "  position: 'topleft',  \n"
+				//+ "  drawCircle: false,  \n"
+				+ "}); "
 		);
-		// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
-		// https://stackoverflow.com/questions/57433144/leaflet-draw-on-rectangle-draw-it-throws-error
 	}
 	
 	public void addLLayerGroup(final LLayerGroup lLayerGroup)
