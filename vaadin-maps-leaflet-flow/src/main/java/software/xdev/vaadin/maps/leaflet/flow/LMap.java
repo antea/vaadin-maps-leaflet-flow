@@ -19,6 +19,12 @@ package software.xdev.vaadin.maps.leaflet.flow;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -249,41 +255,22 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		if(editableFeatureGroup == null){
 			throw new IllegalArgumentException("editableFeatureGroup cant be null");
 		}
+		
+		String filePath = "JavaScript/DrawControl.js";
+		String jsCode = null;
+		
+		try {
+			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
 		try
 		{
 			editableFeatureGroup.setBuildClientJSVarName("editableFeatureGroup");
 			this.getElement().executeJs(
-				editableFeatureGroup.buildClientJSItems()+"\n"//"let editableFeatureGroup = new L.FeatureGroup();\n"
-					+ CLIENT_MAP + ".addLayer(editableFeatureGroup);\n"
-					+ "     var drawControl = new L.Control.Draw({\n"
-					+ "         edit: {\n"
-					+ "             featureGroup: editableFeatureGroup\n"
-					+ "         },\n"
-					+ "			draw: {\n"
-					+ "    			rectangle: { showArea: false }, \n"
-					+ "			}"
-					+ "     });\n"
-					+ CLIENT_MAP + ".addControl(drawControl);"
-					+ "let addMarkerToClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".addLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ "let removeMarkerFromClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".removeLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ "let clearMarkerFromClusterGroup = () => "+CLIENT_MARKER_CLUSTER_GROUP+".clearLayers();\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
-					+ "        var type = e.layerType,\n"
-					+ "            layer = e.layer;\n"
-					+ "        	editableFeatureGroup.addLayer(layer);\n"
-					+ "            addMarkerToClusterGroup(layer);\n" // important: add this after adding to editableFeatureGroup
-					+ "    \n"
-					+ "        if (type === 'marker') {\n"
-					+ "        } else {\n"
-
-					+ "        }\n"
-					+ "    });"
-					+ CLIENT_MAP + ".on(L.Draw.Event.DELETED, function (e) {\n"
-					+ "  e.layers.eachLayer(layer => {\n"
-					+ "    removeMarkerFromClusterGroup(layer);\n"
-					+ "  });\n"
-					+ "    });\n"
-					
+				editableFeatureGroup.buildClientJSItems() + "\n" + jsCode//"let editableFeatureGroup = new L.FeatureGroup();\n"
+		
 			
 			);
 			// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
