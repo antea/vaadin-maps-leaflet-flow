@@ -17,8 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LLayerGroup
 {
 	private final List<LComponent> components = new ArrayList<>();
-	
-	
+	protected String options = "";
 	public LLayerGroup(final LComponent... lComponents)
 	{
 		this.components.addAll(Arrays.asList(lComponents));
@@ -41,8 +40,9 @@ public class LLayerGroup
 	
 	public String buildClientJSItems() throws JsonProcessingException
 	{
-		// check LMap.addLComponent to understand why we do let item
-		StringBuilder jsCode = new StringBuilder("let item = L." + getLeafletComponentName() + "()");
+		StringBuilder jsCode =
+			new StringBuilder("let item = L." + getLeafletComponentName() + "(" + this.options + ")");
+		
 		for(int i = 0; i < this.components.size(); i++)
 		{
 			// this is to avoid the item variable being instantiated with the same variable name
@@ -57,11 +57,8 @@ public class LLayerGroup
 					: "")
 				.append("\n")
 				.append("item.addLayer(item" + i + ")");
-			
 		}
 		
 		return jsCode.toString();
 	}
-	
-	
 }
