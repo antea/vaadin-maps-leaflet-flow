@@ -19,6 +19,9 @@ package software.xdev.vaadin.maps.leaflet.flow;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,7 +75,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// Were the layer Groups will be stored under the hood.
 	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
-	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this.markerClusterGroup";
+	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this. ";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
@@ -249,41 +252,21 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		if(editableFeatureGroup == null){
 			throw new IllegalArgumentException("editableFeatureGroup cant be null");
 		}
+		String jsCode = "";
+		File jsFile = new File("JavaScript/DrawControl.js");
+		try {
+			jsCode = new String(Files.readAllBytes(jsFile.toPath()));
+		}
+		catch(IOException e) {
+			System.err.println("Error reading JavaScript file DrawControl.jsb" + e.getMessage());
+		}
+		
 		try
 		{
 			editableFeatureGroup.setBuildClientJSVarName("editableFeatureGroup");
 			this.getElement().executeJs(
-				editableFeatureGroup.buildClientJSItems()+"\n"//"let editableFeatureGroup = new L.FeatureGroup();\n"
-					+ CLIENT_MAP + ".addLayer(editableFeatureGroup);\n"
-					+ "     var drawControl = new L.Control.Draw({\n"
-					+ "         edit: {\n"
-					+ "             featureGroup: editableFeatureGroup\n"
-					+ "         },\n"
-					+ "			draw: {\n"
-					+ "    			rectangle: { showArea: false }, \n"
-					+ "			}"
-					+ "     });\n"
-					+ CLIENT_MAP + ".addControl(drawControl);"
-					+ "let addMarkerToClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".addLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ "let removeMarkerFromClusterGroup = (layer) => "+CLIENT_MARKER_CLUSTER_GROUP+".removeLayer(layer);\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ "let clearMarkerFromClusterGroup = () => "+CLIENT_MARKER_CLUSTER_GROUP+".clearLayers();\n" // I did this because for some reason CLIENT_MARKER_CLUSTER_GROUP is undefined in the callback bellow
-					+ CLIENT_MAP + ".on(L.Draw.Event.CREATED, function (e) {\n"
-					+ "        var type = e.layerType,\n"
-					+ "            layer = e.layer;\n"
-					+ "        	editableFeatureGroup.addLayer(layer);\n"
-					+ "            addMarkerToClusterGroup(layer);\n" // important: add this after adding to editableFeatureGroup
-					+ "    \n"
-					+ "        if (type === 'marker') {\n"
-					+ "        } else {\n"
-
-					+ "        }\n"
-					+ "    });"
-					+ CLIENT_MAP + ".on(L.Draw.Event.DELETED, function (e) {\n"
-					+ "  e.layers.eachLayer(layer => {\n"
-					+ "    removeMarkerFromClusterGroup(layer);\n"
-					+ "  });\n"
-					+ "    });\n"
-					
+				editableFeatureGroup.buildClientJSItems() + "\n" + jsCode//"let editableFeatureGroup = new L.FeatureGroup();\n"
+		
 			
 			);
 			// we disable rectangle showArea (rectangle: { showArea: false }) to avoid running code with bug (in leaflet.draw)
