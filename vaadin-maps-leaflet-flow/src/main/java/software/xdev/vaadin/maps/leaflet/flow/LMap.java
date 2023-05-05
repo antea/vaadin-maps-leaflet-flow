@@ -70,8 +70,9 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// Were the layer Groups will be stored under the hood.
 	private static final String CLIENT_LAYER_GROUPS = "this.layerGroups";
 	private static final String CLIENT_TILE_LAYER = "this.tilelayer";
-	private static final String CLIENT_MARKER_CLUSTER_GROUP = "this.markerClusterGroup";
+	private static final String CLIENT_GLOBAL_MCG = "this.markerClusterGroup";
 	public static final String CLIENT_ENABLE_MAP_DRAGGING_FUNCTION = "this.enableMapDragging";
+	public static final String CLIENT_REMOVE_MARKER_GLOBAL_MCG = "this.removeMarkerFromGlobalClusterGroup";
 	private final Div divMap = new Div();
 	private LCenter center;
 	private final List<LComponent> components = new ArrayList<>();
@@ -87,17 +88,18 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		
 		// bind map to div
 		this.getElement().executeJs(CLIENT_MAP + "="
-			+ "new L.map(this.getElementsByTagName('div')[0],{scrollWheelZoom: 'center'});\n"
+			+ "new L.map(this.getElementsByTagName('div')[0]);\n"
 			+ CLIENT_MAP + "._layersMaxZoom = 19;\n"  // why am I doing this: https://github.com/mapbox/mapbox-gl-leaflet/issues/113);
 			+ CLIENT_ENABLE_MAP_DRAGGING_FUNCTION + " = () => "+ CLIENT_MAP +".dragging.enable();\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
+			+ CLIENT_REMOVE_MARKER_GLOBAL_MCG + " = (layer) => "+ CLIENT_GLOBAL_MCG +".removeLayer(layer);\n"
 		);
 		this.getElement().executeJs(CLIENT_COMPONENTS + "="
 			+ "new Array();");
 		this.getElement().executeJs(CLIENT_LAYER_GROUPS + "="
 			+ "new Array();");
-		this.getElement().executeJs(CLIENT_MARKER_CLUSTER_GROUP + "="
+		this.getElement().executeJs(CLIENT_GLOBAL_MCG + "="
 			+ "L.markerClusterGroup();\n"
-			+ CLIENT_MAP + ".addLayer(" + CLIENT_MARKER_CLUSTER_GROUP + ");");
+			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 	}
 	
 	public LMap(final double lat, final double lon, final int zoom)
@@ -201,7 +203,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		{
 			this.getElement().executeJs(lComponent.buildClientJSItems() + "\n"
 				+ (lComponent instanceof LMarker
-				? CLIENT_MARKER_CLUSTER_GROUP + ".addLayer(item);\n"
+				? CLIENT_GLOBAL_MCG + ".addLayer(item);\n"
 				: "item.addTo(" + CLIENT_MAP + ");\n")
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
@@ -241,7 +243,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		{
 			this.getElement().executeJs("let delItem = " + CLIENT_COMPONENTS + "[" + index + "];\n"
 				+ (lComponent instanceof LMarker
-				? CLIENT_MARKER_CLUSTER_GROUP + ".removeLayer(delItem);\n"
+				? CLIENT_GLOBAL_MCG + ".removeLayer(delItem);\n"
 				: "delItem.remove();\n")
 				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
 		}
@@ -254,13 +256,17 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "  position: 'topleft',  \n"
 				//+ "  drawCircle: false,  \n"
 				+ "}); "
-				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_MARKER_CLUSTER_GROUP +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
+				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
+				+ "let removeMarkerFromClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".removeLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
 				+ CLIENT_MAP + ".on('pm:create', (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     addMarkerToClusterGroup(e.layer);\n"
 				+ "     e.layer.on('pm:edit', (e) => {\n"
 				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+				+ "     });"
+				+ "     e.layer.on('pm:remove', (e) => {\n"
+				+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
 				+ "     });"
 				+ "  }"
 				+ "});"
