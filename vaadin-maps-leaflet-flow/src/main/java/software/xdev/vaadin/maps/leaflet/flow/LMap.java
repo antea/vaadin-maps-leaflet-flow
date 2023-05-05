@@ -258,13 +258,13 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		
 		String filePath = "JavaScript/DrawControl.js";
 		String jsCode = null;
+		
 		try {
 			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 		
-		System.out.println(jsCode);
 		try
 		{
 			editableFeatureGroup.setBuildClientJSVarName("editableFeatureGroup");
