@@ -1,4 +1,4 @@
-package software.xdev.vaadin.maps.leaflet.flow.demo.data.entity;
+package software.xdev.vaadin.maps.leaflet.flow.data.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
