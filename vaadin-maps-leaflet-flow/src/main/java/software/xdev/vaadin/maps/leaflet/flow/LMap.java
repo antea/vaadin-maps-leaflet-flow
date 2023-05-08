@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.atmosphere.config.service.Message;
-import org.slf4j.Marker;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.component.AttachEvent;
@@ -52,6 +50,9 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
 import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Rectangle;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
@@ -202,7 +203,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	
 	/**
 	 * This fixes situations where the leafletmap overlays components like Dialogs
-	 * 
+	 *
 	 * @param enabled
 	 *            enable or disable the fix
 	 */
@@ -409,79 +410,178 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	}
 	
 	public static abstract class MarkerEvent extends ComponentEvent<LMap> {
-		private LMarker marker;
+		private Marker marker;
 		
-		protected MarkerEvent(LMap source, LMarker marker) {
+		protected MarkerEvent(LMap source, Marker marker) {
 			super(source, false); // fromClient - true if the event originated from the client side, false otherwise
 			// its false because we will fire the even programmatically with fireEvent() method.
 			this.marker = marker;
 		}
 		
-		public LMarker getMarker() {
+		public Marker getMarker() {
 			return marker;
 		}
 	}
 	
 	public static class SaveMarkerEvent extends MarkerEvent {
-		SaveMarkerEvent(LMap source, LMarker marker) {
+		SaveMarkerEvent(LMap source, Marker marker) {
 			super(source, marker);
 		}
 	}
 	
 	public static class DeleteMarkerEvent extends MarkerEvent {
-		DeleteMarkerEvent(LMap source, LMarker marker) {
+		DeleteMarkerEvent(LMap source, Marker marker) {
 			super(source, marker);
 		}
 	}
 	
 	public static abstract class RectangleEvent extends ComponentEvent<LMap> {
-		private LRectangle rectangle;
+		private Rectangle rectangle;
 		
-		protected RectangleEvent(LMap source, LRectangle rectangle) {
+		protected RectangleEvent(LMap source, Rectangle rectangle) {
 			super(source, false);
 			this.rectangle = rectangle;
 		}
 		
-		public LRectangle getRectangle() {
+		public Rectangle getRectangle() {
 			return rectangle;
 		}
 	}
 	
 	public static class SaveRectangleEvent extends RectangleEvent {
-		SaveRectangleEvent(LMap source, LRectangle rectangle) {
+		SaveRectangleEvent(LMap source, Rectangle rectangle) {
 			super(source, rectangle);
 		}
 	}
 	
 	public static class DeleteRectangleEvent extends RectangleEvent {
-		DeleteRectangleEvent(LMap source, LRectangle rectangle) {
+		DeleteRectangleEvent(LMap source, Rectangle rectangle) {
 			super(source, rectangle);
 		}
 	}
 	
 	public static abstract class PolylineEvent extends ComponentEvent<LMap> {
-		private LPolyline polyline;
+		private Polyline polyline;
 		
-		protected PolylineEvent(LMap source, LPolyline polyline) {
+		protected PolylineEvent(LMap source, Polyline polyline) {
 			super(source, false);
 			this.polyline = polyline;
 		}
 		
-		public LPolyline getPolyline() {
+		public Polyline getPolyline() {
 			return polyline;
 		}
 	}
 	
 	public static class SavePolylineEvent extends PolylineEvent {
-		SavePolylineEvent(LMap source, LPolyline polyline) {
+		SavePolylineEvent(LMap source, Polyline polyline) {
 			super(source, polyline);
 		}
 	}
 	
 	public static class DeletePolylineEvent extends PolylineEvent {
-		DeletePolylineEvent(LMap source, LPolyline polyline) {
+		DeletePolylineEvent(LMap source, Polyline polyline) {
 			super(source, polyline);
 		}
 	}
 	
+	// make this method return the ID, so it can be stored in JS: https://github.com/geoman-io/leaflet-geoman/issues/248#issuecomment-343852257
+	
+	@ClientCallable
+	private long fireCreatePolylineEvent(final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		// set points
+		fireEvent(new SavePolylineEvent(this, polyline));
+		return polyline.getId();
+	}
+	
+	@ClientCallable
+	private void fireSavePolylineEvent(final long id, final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		// set points + ID
+		fireEvent(new SavePolylineEvent(this, polyline));
+	}
+	
+	@ClientCallable
+	private void fireDeletePolylineEvent(final long id, final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		// set points + ID
+		fireEvent(new DeletePolylineEvent(this, polyline));
+	}
+	
+	@ClientCallable
+	private long fireCreateMarkerEvent(final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon())
+		fireEvent(new SaveMarkerEvent(this, marker));
+		return marker.getId();
+	}
+	
+	@ClientCallable
+	private void fireSaveMarkerEvent(final long id, final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon()) + ID
+		fireEvent(new SaveMarkerEvent(this, marker));
+	}
+	
+	@ClientCallable
+	private void fireDeleteMarkerEvent(final long id, final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon()) + ID
+		fireEvent(new DeleteMarkerEvent(this, marker));
+	}
+	
+	@ClientCallable
+	private long fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
+		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		// set points like: new LRectangle(noLPoint, seLPoint))
+		fireEvent(new SaveRectangleEvent(this, rectangle));
+		return rectangle.getId();
+	}
+	
+	@ClientCallable
+	private void fireSaveRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
+		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		// set points like: new LRectangle(noLPoint, seLPoint)) + ID
+		fireEvent(new SaveRectangleEvent(this, rectangle));
+	}
+	
+	@ClientCallable
+	private void fireDeleteRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
+		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		// set points like: new LRectangle(noLPoint, seLPoint)) + ID
+		fireEvent(new DeleteRectangleEvent(this, rectangle));
+	}
+	
+	private List<LPoint> extractLPoints(final Double[][] points)
+	{
+		List<LPoint> lPoints = new ArrayList<>();
+		for(Double[] point : points)
+		{
+			LPoint lPoint = extractLPoint(point);
+			lPoints.add(lPoint);
+		}
+		return lPoints;
+	}
+	
+	private LPoint extractLPoint(final Double[] point)
+	{
+		if(point.length != 2){
+			throw new IllegalArgumentException("point array has to have length of 2");
+		}
+		LPoint lPoint = new LPoint(point[0], point[1]);
+		return lPoint;
+	}
 }
