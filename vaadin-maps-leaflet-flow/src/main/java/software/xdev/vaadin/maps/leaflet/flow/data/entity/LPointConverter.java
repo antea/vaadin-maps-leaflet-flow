@@ -33,9 +33,8 @@ public class LPointConverter implements AttributeConverter<LPoint, List<Double>>
 		}
 		
 		else {
-			// create point from list
-			LPoint point = new LPoint(doubleList.get(0), doubleList.get(1));
-			return point;
+			// return LPoint from extracted from list
+			return new LPoint(doubleList.get(0), doubleList.get(1));
 		}
 	}
 }
