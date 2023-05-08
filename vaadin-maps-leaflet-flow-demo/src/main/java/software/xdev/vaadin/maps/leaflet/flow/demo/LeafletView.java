@@ -129,6 +129,9 @@ public class LeafletView extends VerticalLayout
 			this.lunchLayerGroup.setClusterRadius(clusterRadius);
 			this.map.removeLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup );
 			this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+			
+			// Global map marker cluster group
+			this.map.setClusterRadius(clusterRadius);
 		}
 	}
 	

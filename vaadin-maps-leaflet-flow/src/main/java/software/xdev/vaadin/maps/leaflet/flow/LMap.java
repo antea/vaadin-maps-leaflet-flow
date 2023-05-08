@@ -108,6 +108,19 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.enableMousePosition();
 	}
 	
+	public void setClusterRadius(int clusterRadius)
+	{
+		// This does not work: this.getElement().executeJs(CLIENT_GLOBAL_MCG + ".options.maxClusterRadius = " + clusterRadius + ";");
+		this.getElement().executeJs(CLIENT_MAP + ".removeLayer("+CLIENT_GLOBAL_MCG+");\n"
+			+ "let tempMCG = L.markerClusterGroup({maxClusterRadius: " + clusterRadius + "});\n"
+			+ CLIENT_GLOBAL_MCG + ".eachLayer(function (layer) {\n"
+			+ "  tempMCG.addLayer(layer);\n"
+			+ "});\n"
+			+ CLIENT_GLOBAL_MCG + "=" + "tempMCG\n"
+			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");"
+		);
+	}
+	
 	public LMap(final double lat, final double lon, final int zoom)
 	{
 		this();
