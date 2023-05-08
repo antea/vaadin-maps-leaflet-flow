@@ -15,6 +15,6 @@ public class Marker extends AbstractEntity
 	@Convert(converter = LPointConverter.class)
 	private LPoint point;
 	
-	public void setPoint(List<LPoint> point) { this.point = point; }
-	public List<LPoint> getPoint() { return this.point; }
+	public void setPoint(LPoint point) { this.point = point; }
+	public LPoint getPoint() { return this.point; }
 }
