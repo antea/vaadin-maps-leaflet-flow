@@ -24,12 +24,30 @@ public class DbService {
 		this.rectangleRepository = rectangleRepository;
 	}
 	
-	// public void saveMarker(Marker marker) {
-	// 	if (marker = null) {
-	// 		Sy
-	// 	}
-	// }
-	//
+	public void saveMarker(Marker marker) {
+		if (marker == null) {
+			System.err.println("Error, marker is null");
+			return;
+		}
+		markerRepository.save(marker);
+	}
+	
+	public void savePolyline(Polyline polyline) {
+		if (polyline == null) {
+			System.err.println("Error, Polyline is null");
+			return;
+		}
+		polylineRepository.save(polyline);
+	}
+	
+	public void saveRectangle(Rectangle rectangle) {
+		if (rectangle == null) {
+			System.err.println("Error, Rectangle is null");
+			return;
+		}
+		rectangleRepository.save(rectangle);
+	}
+
 	
 	public List<Marker> findAllMarkers() { return markerRepository.findAll(); }
 	public List<Polyline> findAllPolylines() { return polylineRepository.findAll(); }
