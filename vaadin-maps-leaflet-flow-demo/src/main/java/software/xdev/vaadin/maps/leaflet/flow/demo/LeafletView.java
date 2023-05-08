@@ -25,6 +25,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
+import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
@@ -254,7 +255,9 @@ public class LeafletView extends VerticalLayout
 			markerWithDifferentIcon,
 			markerInfo,
 			polygonNoc,
-			customPolyline);
+			customPolyline,
+			new LRectangle(new LPoint(49.675126, 12.160733), new LPoint(49.67599, 12.16993))
+		);
 		this.map.addLLayerGroup(this.normalLayerGroup);
 		this.map.initGeomanControls();
 	}

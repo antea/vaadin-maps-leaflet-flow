@@ -18,14 +18,14 @@ package software.xdev.vaadin.maps.leaflet.flow.data;
 public class LPolygonOptions
 {
 	private boolean stroke = true;
-	private String color = "#000000";
+	private String color = "#3388ff";
 	private double opacity = 1.0;
 	private int weight = 3;
 	private String lineJoin = "round";
 	
 	// It' important that the default stays false because LPolyline also uses LPolygonOptions.
 	private boolean fill = false;
-	private String fillColor = "#ffffff";
+	private String fillColor = "#3388ff";
 	private double fillOpacity = 0.2;
 	private String fillRule = "nonzero";
 	private String dashArray;
