@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.atmosphere.config.service.Message;
+import org.slf4j.Marker;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -46,6 +49,8 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
+import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
+import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
@@ -395,4 +400,88 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs("let tempMap = " + CLIENT_MAP + "\n"
 			+ "setTimeout(function () { tempMap.invalidateSize(true); }, 100);");
 	}
+	
+	// Events
+	
+	public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
+		ComponentEventListener<T> listener) {
+		return getEventBus().addListener(eventType, listener);
+	}
+	
+	public static abstract class MarkerEvent extends ComponentEvent<LMap> {
+		private LMarker marker;
+		
+		protected MarkerEvent(LMap source, LMarker marker) {
+			super(source, false); // fromClient - true if the event originated from the client side, false otherwise
+			// its false because we will fire the even programmatically with fireEvent() method.
+			this.marker = marker;
+		}
+		
+		public LMarker getMarker() {
+			return marker;
+		}
+	}
+	
+	public static class SaveMarkerEvent extends MarkerEvent {
+		SaveMarkerEvent(LMap source, LMarker marker) {
+			super(source, marker);
+		}
+	}
+	
+	public static class DeleteMarkerEvent extends MarkerEvent {
+		DeleteMarkerEvent(LMap source, LMarker marker) {
+			super(source, marker);
+		}
+	}
+	
+	public static abstract class RectangleEvent extends ComponentEvent<LMap> {
+		private LRectangle rectangle;
+		
+		protected RectangleEvent(LMap source, LRectangle rectangle) {
+			super(source, false);
+			this.rectangle = rectangle;
+		}
+		
+		public LRectangle getRectangle() {
+			return rectangle;
+		}
+	}
+	
+	public static class SaveRectangleEvent extends RectangleEvent {
+		SaveRectangleEvent(LMap source, LRectangle rectangle) {
+			super(source, rectangle);
+		}
+	}
+	
+	public static class DeleteRectangleEvent extends RectangleEvent {
+		DeleteRectangleEvent(LMap source, LRectangle rectangle) {
+			super(source, rectangle);
+		}
+	}
+	
+	public static abstract class PolylineEvent extends ComponentEvent<LMap> {
+		private LPolyline polyline;
+		
+		protected PolylineEvent(LMap source, LPolyline polyline) {
+			super(source, false);
+			this.polyline = polyline;
+		}
+		
+		public LPolyline getPolyline() {
+			return polyline;
+		}
+	}
+	
+	public static class SavePolylineEvent extends PolylineEvent {
+		SavePolylineEvent(LMap source, LPolyline polyline) {
+			super(source, polyline);
+		}
+	}
+	
+	public static class DeletePolylineEvent extends PolylineEvent {
+		DeletePolylineEvent(LMap source, LPolyline polyline) {
+			super(source, polyline);
+		}
+	}
+	
 }
