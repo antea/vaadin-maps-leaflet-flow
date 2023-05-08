@@ -14,8 +14,17 @@ public class Rectangle extends AbstractEntity
 {
 	
 	@Convert(converter = LPointConverter.class)
-	private List<LPoint> points = new ArrayList<>();
+	// North West Point
+	private LPoint nwPoint;
 	
-	public List<LPoint> getPoints() { return this.points; }
-	public void setPoints(List<LPoint> points) { this.points = points; }
+	@Convert(converter = LPointConverter.class)
+	// South East Point
+	private LPoint sePoint;
+	
+	public LPoint getNwPoint() { return this.nwPoint; }
+	public void setNwPoint(LPoint point) { this.nwPoint = point; }
+	
+	
+	public LPoint getSePoint() { return this.sePoint; }
+	public void setSePoint(LPoint point) { this.sePoint = point; }
 }
