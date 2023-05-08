@@ -15,11 +15,12 @@
  */
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class LPoint
+public class LPoint implements Serializable
 {
 	private List<Double> coords = new ArrayList<>();
 	
