@@ -24,6 +24,9 @@ public class LMarkerClusterGroup extends LLayerGroup
 	{
 		return "markerClusterGroup";
 	}
+	public void setClusterRadius(int clusterRadius) {
+		this.options = "{maxClusterRadius: " + clusterRadius + "}";
+	}
 	
 	
 }

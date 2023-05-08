@@ -8,8 +8,11 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
@@ -35,6 +38,8 @@ public class LeafletView extends VerticalLayout
 	 */
 	private final Button btnLunch = new Button("Where do XDEV employees go for lunch?");
 	private final Button btnCenter = new Button("Center on Caribbean");
+	private final Button clusterButton = new Button("Configure");
+	private final TextField clusterPixels = new TextField();
 	private LMap map;
 	
 	private LMarker markerZob;
@@ -57,6 +62,36 @@ public class LeafletView extends VerticalLayout
 		this.initMapComponents();
 		
 		this.btnLunch.addClickListener(this::btnLunchClick);
+		this.clusterButton.addClickListener(this::clusterButtonClick);
+		
+		// TextField used to configure marker cluster radius
+		this.clusterPixels.setPlaceholder("Cluster Radius (px)");
+		// Event listener prevents non numerical inputs
+		this.clusterPixels.addValueChangeListener(event -> {
+			try{
+				String value = this.clusterPixels.getValue();
+				char c = value.charAt(value.length() - 1);
+				// Checking if new value is not a number
+				if (value.length() == 1 && c == '0') {
+					Notification.show("Cluster Radius must be at least 1 pixel.");
+					this.clusterPixels.setValue("");
+				} else if (!Character.isDigit(c) || Integer.parseInt(value) > 100) {
+					Notification.show("Cluster Radius must be an integer (1-100).");
+					this.clusterPixels.setValue(value.substring(0, value.length() - 1));
+				}
+			} catch (StringIndexOutOfBoundsException e) {
+		
+			}
+		});
+		// Value change mode -> ensures that the event is called for each change
+		this.clusterPixels.setValueChangeMode(ValueChangeMode.EAGER);
+		
+		final HorizontalLayout clusterConfiguration = new HorizontalLayout();
+		clusterConfiguration.add(
+			this.clusterPixels,
+			this.clusterButton
+		);
+		
 		final HorizontalLayout hlButtonContainer = new HorizontalLayout();
 		hlButtonContainer.setWidthFull();
 		hlButtonContainer.setJustifyContentMode(JustifyContentMode.BETWEEN);
@@ -75,10 +110,26 @@ public class LeafletView extends VerticalLayout
 				dialog.open();
 				
 				icoClose.addClickListener(iev -> dialog.close());
-			}));
+			}),
+			clusterConfiguration
+		);
 		this.btnCenter.addClickListener(e-> map.centerAndZoom(new LPoint(14.467727, -61.69703), new LPoint(16.33426,-60.921676)));
 		this.add(this.map, hlButtonContainer);
 		this.setSizeFull();
+	}
+	
+	// Event listener to change marker cluster radius
+	private void clusterButtonClick(final ClickEvent<Button> event) {
+		if (this.clusterPixels.getValue() == ""){
+			Notification.show("Please enter a value.");
+		} else {
+			// Layout rerendered with a new cluster radius.
+			int clusterRadius = Integer.parseInt(this.clusterPixels.getValue());
+			this.normalLayerGroup.setClusterRadius(clusterRadius);
+			this.lunchLayerGroup.setClusterRadius(clusterRadius);
+			this.map.removeLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup );
+			this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+		}
 	}
 	
 	private void btnLunchClick(final ClickEvent<Button> event)
