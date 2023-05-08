@@ -21,8 +21,8 @@ public class Rectangle extends AbstractEntity
 	// South East Point
 	private LPoint sePoint;
 	
-	public LPoint getNoPoint() { return this.nwPoint; }
-	public void setNoPoint(LPoint point) { this.nwPoint = point; }
+	public LPoint getNwPoint() { return this.nwPoint; }
+	public void setNwPoint(LPoint point) { this.nwPoint = point; }
 	
 	
 	public LPoint getSePoint() { return this.sePoint; }
