@@ -18,6 +18,8 @@ package software.xdev.vaadin.maps.leaflet.flow.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import software.xdev.vaadin.maps.leaflet.flow.LMap;
+
 
 public class LMarker implements LComponent
 {
@@ -150,7 +152,14 @@ public class LMarker implements LComponent
 			+ ");"
 			+ (this.getTag() != null && !this.getTag().isBlank()
 			? ("\nvar vaadinServer = this.$server;"
-			+ "\nitem.on('click', function (e) { vaadinServer.onMarkerClick('" + this.tag + "') });")
-			: "");
+			+ "\nitem.on('click', function (e) { vaadinServer.onMarkerClick('" + this.tag + "') });\n")
+			: "")
+			+ "item.on('pm:edit', (e) => {\n"
+			+ "  "+ LMap.CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+			+ "});\n"
+			+ "item.on('pm:remove', (e) => {\n"
+			+ "   "+LMap.CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
+			+ "});";
+		
 	}
 }
