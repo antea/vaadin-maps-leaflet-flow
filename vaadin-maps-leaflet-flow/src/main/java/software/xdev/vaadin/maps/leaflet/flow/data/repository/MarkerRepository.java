@@ -7,5 +7,5 @@ import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
 
 
 
-public interface MarkerRepository extends JpaRepository<Marker, Long> {
+public interface MarkerRepository extends JpaRepository<Marker, String> {
 }
