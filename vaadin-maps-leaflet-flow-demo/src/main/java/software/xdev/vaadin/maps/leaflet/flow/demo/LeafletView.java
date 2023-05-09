@@ -260,5 +260,22 @@ public class LeafletView extends VerticalLayout
 		);
 		this.map.addLLayerGroup(this.normalLayerGroup);
 		this.map.initGeomanControls();
+		this.map.addListener(LMap.SaveMarkerEvent.class,
+			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+		
+		this.map.addListener(LMap.SavePolylineEvent.class,
+			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+		
+		this.map.addListener(LMap.SaveRectangleEvent.class,
+			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
+		
+		this.map.addListener(LMap.DeleteMarkerEvent.class,
+			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+		
+		this.map.addListener(LMap.DeletePolylineEvent.class,
+			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+		
+		this.map.addListener(LMap.DeleteRectangleEvent.class,
+			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
 	}
 }

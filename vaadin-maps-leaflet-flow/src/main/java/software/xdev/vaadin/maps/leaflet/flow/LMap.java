@@ -292,22 +292,46 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				//+ "  drawCircle: false,  \n"
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
-				+ "let removeMarkerFromClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".removeLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
+				+ "let vaadinServer = this.$server;"
 				+ CLIENT_MAP + ".on('pm:create', (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
+				+ "     let pos = e.layer.getLatLng();\n"
 				+ "     addMarkerToClusterGroup(e.layer);\n"
 				+ "     e.layer.on('pm:edit', (e) => {\n"
 				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+				+ "       vaadinServer.fireSaveMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
 				+ "     });"
 				+ "     e.layer.on('pm:remove', (e) => {\n"
 				+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
+				+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
+				+ "     });\n"
+				+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
+				+ "     e.layer.dbId = id;\n"
+				+ "  } else if(e.layer instanceof L.Polyline){\n"
+				+ "     let verts = e.layer.getLatLngs();\n"
+				+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+				+ "     e.layer.on('pm:edit', (e) => {\n"
+				+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
 				+ "     });"
-				+ "  }"
+				+ "     e.layer.on('pm:remove', (e) => {\n"
+				+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+				+ "     });\n"
+				+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
+				+ "     e.layer.dbId = id;\n"
+				+ "  } else if(e.layer instanceof L.Rectangle){\n"
+				+ "     let nw = e.layer.getBounds().getNorthWest();\n"
+				+ "     let se = e.layer.getBounds().getSouthEast();\n"
+				+ "     e.layer.on('pm:edit', (e) => {\n"
+				+ "       vaadinServer.fireSaveRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+				+ "     });"
+				+ "     e.layer.on('pm:remove', (e) => {\n"
+				+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+				+ "     });\n"
+				+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
+				+ "     e.layer.dbId = id;\n"
+				+ "  }\n"
 				+ "});"
-				// + CLIENT_MAP + ".on('pm:markerdragend', (e) => {\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
-				// + "  enableMapDragging();"
-				// + "});"
 		);
 	}
 	
@@ -539,29 +563,29 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	
 	@ClientCallable
 	private long fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
-		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(noLPoint, seLPoint))
+		// set points like: new LRectangle(nwLPoint, seLPoint))
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 		return rectangle.getId();
 	}
 	
 	@ClientCallable
 	private void fireSaveRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
-		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(noLPoint, seLPoint)) + ID
+		// set points like: new LRectangle(nwLPoint, seLPoint)) + ID
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 	}
 	
 	@ClientCallable
 	private void fireDeleteRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
-		LPoint noLPoint = extractLPoint(noPoint);
+		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(noLPoint, seLPoint)) + ID
+		// set points like: new LRectangle(nwLPoint, seLPoint)) + ID
 		fireEvent(new DeleteRectangleEvent(this, rectangle));
 	}
 	

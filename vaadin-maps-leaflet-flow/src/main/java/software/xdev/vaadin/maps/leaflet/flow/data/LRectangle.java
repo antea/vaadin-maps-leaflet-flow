@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LRectangle implements LComponent
 {
-	private final LPoint noPoint;
+	private final LPoint nwPoint;
 	private final LPoint sePoint;
 	private final LPolygonOptions properties;
 	
 	
-	public LRectangle(final LPoint noPoint, final LPoint sePoint)
+	public LRectangle(final LPoint nwPoint, final LPoint sePoint)
 	{
-		this.noPoint = noPoint;
+		this.nwPoint = nwPoint;
 		this.sePoint = sePoint;
 		this.properties = new LPolygonOptions();
 		this.properties.setFill(true);
@@ -25,7 +25,7 @@ public class LRectangle implements LComponent
 		final ObjectMapper mapper = new ObjectMapper();
 		return "let item = L.rectangle("
 			+ "["
-			+ "[" + this.noPoint.getLat() + ", " + this.noPoint.getLon() + "],"
+			+ "[" + this.nwPoint.getLat() + ", " + this.nwPoint.getLon() + "],"
 			+ "[" + this.sePoint.getLat() + ", " + this.sePoint.getLon() + "]"
 			+ "],"
 			+ mapper.writeValueAsString(this.properties)
@@ -39,9 +39,9 @@ public class LRectangle implements LComponent
 		return null;
 	}
 	
-	public LPoint getNoPoint()
+	public LPoint getNwPoint()
 	{
-		return noPoint;
+		return nwPoint;
 	}
 	
 	public LPoint getSePoin()
