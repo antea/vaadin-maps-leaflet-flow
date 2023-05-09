@@ -18,6 +18,14 @@ public class DbService {
 	private final PolylineRepository polylineRepository;
 	private final RectangleRepository rectangleRepository;
 	
+	
+	// default constructor
+	public DbService() {
+		this.markerRepository = null;
+		this.polylineRepository = null;
+		this.rectangleRepository = null;
+	}
+
 	public DbService(MarkerRepository markerRepository, PolylineRepository polylineRepository, RectangleRepository rectangleRepository) {
 		this.markerRepository = markerRepository;
 		this.polylineRepository = polylineRepository;
