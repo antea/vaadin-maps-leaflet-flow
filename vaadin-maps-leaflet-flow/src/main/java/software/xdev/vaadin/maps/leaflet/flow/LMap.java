@@ -285,6 +285,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
+	// adds geoman and all the events needed
 	public void initGeomanControls()
 	{
 		this.getElement().executeJs(
