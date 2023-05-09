@@ -17,6 +17,7 @@ package software.xdev.vaadin.maps.leaflet.flow;
 
 
 
+import static java.lang.Long.parseLong;
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
 import java.util.ArrayList;
@@ -293,7 +294,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
 				+ "let vaadinServer = this.$server;"
-				+ CLIENT_MAP + ".on('pm:create', (e) => {\n"
+				+ CLIENT_MAP + ".on('pm:create', async (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     let pos = e.layer.getLatLng();\n"
@@ -512,81 +513,94 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	// make this method return the ID, so it can be stored in JS: https://github.com/geoman-io/leaflet-geoman/issues/248#issuecomment-343852257
 	
 	@ClientCallable
-	private long fireCreatePolylineEvent(final Double[]... points){
+	private String fireCreatePolylineEvent(final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
 		Polyline polyline = new Polyline();
-		// set points
+		polyline.setPoints(lPoints);
 		fireEvent(new SavePolylineEvent(this, polyline));
-		return polyline.getId();
+		return polyline.getId() + "";
 	}
 	
 	@ClientCallable
-	private void fireSavePolylineEvent(final long id, final Double[]... points){
+	private void fireSavePolylineEvent(final String id, final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
 		Polyline polyline = new Polyline();
-		// set points + ID
+		polyline.setPoints(lPoints);
+		polyline.setId(stringToLong(id));
 		fireEvent(new SavePolylineEvent(this, polyline));
 	}
 	
 	@ClientCallable
-	private void fireDeletePolylineEvent(final long id, final Double[]... points){
+	private void fireDeletePolylineEvent(final String id, final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
 		Polyline polyline = new Polyline();
-		// set points + ID
+		polyline.setPoints(lPoints);
+		polyline.setId(stringToLong(id));
 		fireEvent(new DeletePolylineEvent(this, polyline));
 	}
 	
 	@ClientCallable
-	private long fireCreateMarkerEvent(final Double[] point){
+	private String fireCreateMarkerEvent(final Double[] point){
 		LPoint lPoint = extractLPoint(point);
 		Marker marker = new Marker();
-		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon())
+		marker.setPoint(lPoint);
 		fireEvent(new SaveMarkerEvent(this, marker));
-		return marker.getId();
+		return marker.getId() + "";
 	}
 	
 	@ClientCallable
-	private void fireSaveMarkerEvent(final long id, final Double[] point){
+	private void fireSaveMarkerEvent(final String id, final Double[] point){
 		LPoint lPoint = extractLPoint(point);
 		Marker marker = new Marker();
-		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon()) + ID
+		marker.setPoint(lPoint);
+		marker.setId(stringToLong(id));
 		fireEvent(new SaveMarkerEvent(this, marker));
 	}
 	
 	@ClientCallable
-	private void fireDeleteMarkerEvent(final long id, final Double[] point){
+	private void fireDeleteMarkerEvent(final String id, final Double[] point){
 		LPoint lPoint = extractLPoint(point);
 		Marker marker = new Marker();
-		// set point like: new LMarker(lPoint.getLat(), lPoint.getLon()) + ID
+		marker.setPoint(lPoint);
+		marker.setId(stringToLong(id));
 		fireEvent(new DeleteMarkerEvent(this, marker));
 	}
 	
 	@ClientCallable
-	private long fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
+	private String fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(nwLPoint, seLPoint))
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
 		fireEvent(new SaveRectangleEvent(this, rectangle));
-		return rectangle.getId();
+		return rectangle.getId() + "";
 	}
 	
 	@ClientCallable
-	private void fireSaveRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
+	private void fireSaveRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(nwLPoint, seLPoint)) + ID
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
+		rectangle.setId(stringToLong(id));
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 	}
 	
 	@ClientCallable
-	private void fireDeleteRectangleEvent(final long id, final Double[] noPoint, final Double[] sePoint){
+	private void fireDeleteRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
 		Rectangle rectangle = new Rectangle();
-		// set points like: new LRectangle(nwLPoint, seLPoint)) + ID
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
+		rectangle.setId(stringToLong(id));
 		fireEvent(new DeleteRectangleEvent(this, rectangle));
+	}
+	
+	private long stringToLong(String input){
+		return parseLong(input);
 	}
 	
 	private List<LPoint> extractLPoints(final Double[][] points)
