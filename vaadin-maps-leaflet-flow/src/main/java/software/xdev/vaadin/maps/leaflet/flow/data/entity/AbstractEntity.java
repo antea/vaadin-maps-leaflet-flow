@@ -1,5 +1,6 @@
 package software.xdev.vaadin.maps.leaflet.flow.data.entity;
 
+import org.hibernate.annotations.GenericGenerator;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,8 +13,9 @@ import jakarta.persistence.Version;
 public abstract class AbstractEntity {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
-	@SequenceGenerator(name = "idgenerator", initialValue = 1)
+	@GenericGenerator(name = "custom_gen",
+		strategy = "software.xdev.vaadin.maps.leaflet.flow.data.generator.CustomGenerator")
+	@GeneratedValue(generator = "custom_gen")
 	private Long id;
 	
 	@Version
