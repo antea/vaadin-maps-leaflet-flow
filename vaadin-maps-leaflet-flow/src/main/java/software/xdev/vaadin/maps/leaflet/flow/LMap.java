@@ -48,8 +48,6 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
-import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
-import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
 import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
@@ -245,6 +243,9 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
 				+ CLIENT_COMPONENTS + ".push(item);");
+				// + (fireEvent
+				// ? fireCreateEventAndSetupEventsJSFunction +"(layer);\n"
+				// : ""));
 		}
 		catch(final JsonProcessingException e)
 		{
@@ -285,9 +286,72 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		}
 	}
 	
+	
+	// use it like this: fireCreateEventJSFunction+"(layer);\n"
+	private static final String fireCreateEventJSFunction =
+		"const fireCreateEventJSFunction = async (layer) => {\n"
+			+ "	 if(layer instanceof L.Marker) {\n"
+			+ "     let pos = layer.getLatLng();\n"
+			+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  } else if(layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "     let nw = layer.getBounds().getNorthWest();\n"
+			+ "     let se = layer.getBounds().getSouthEast();\n"
+			+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  } else if(layer instanceof L.Polyline){\n"
+			+ "     let verts = layer.getLatLngs();\n"
+			+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "fireCreateEventJSFunction"; // use it like this in java: fireCreateEventJSFunction+"(layer);\n"
+	
+	// use it like this: setupEventsJSFunction+"(layer);\n"
+	private static final String setupEventsJSFunction =
+		"const setupEventsJSFunction = async (layer) => {\n"
+			+ "	 if(layer instanceof L.Marker) {\n"
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+			+ "       let pos = e.layer.getLatLng();\n"
+			+ "       vaadinServer.fireSaveMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
+			+ "       let pos = e.layer.getLatLng();\n"
+			+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "     });\n"
+			+ "  } else if(layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+			+ "       let se = e.layer.getBounds().getSouthEast();\n"
+			+ "       vaadinServer.fireSaveRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+			+ "       let se = e.layer.getBounds().getSouthEast();\n"
+			+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     });\n"
+			+ "  } else if(layer instanceof L.Polyline){\n"
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       let verts = e.layer.getLatLngs();\n"
+			+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       let verts = e.layer.getLatLngs();\n"
+			+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+			+ "     });\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "setupEventsJSFunction"; // use it like this in java: setupEventsJSFunction+"(layer);\n"
+	
 	// adds geoman and all the events needed
 	public void initGeomanControls()
 	{
+		
 		this.getElement().executeJs(
 			CLIENT_MAP + ".pm.addControls({  \n"
 				+ "  position: 'topleft',  \n"
@@ -299,50 +363,9 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     addMarkerToClusterGroup(e.layer);\n"
-				+ "     e.layer.on('pm:edit', (e) => {\n"
-				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
-				+ "       let pos = e.layer.getLatLng();\n"
-				+ "       vaadinServer.fireSaveMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
-				+ "     });"
-				+ "     e.layer.on('pm:remove', (e) => {\n"
-				+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
-				+ "       let pos = e.layer.getLatLng();\n"
-				+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
-				+ "     });\n"
-				+ "     let pos = e.layer.getLatLng();\n"
-				+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
-				+ "     e.layer.dbId = id;\n"
-				+ "  } else if(e.layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
-				+ "     e.layer.on('pm:edit', (e) => {\n"
-				+ "       let nw = e.layer.getBounds().getNorthWest();\n"
-				+ "       let se = e.layer.getBounds().getSouthEast();\n"
-				+ "       vaadinServer.fireSaveRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
-				+ "     });"
-				+ "     e.layer.on('pm:remove', (e) => {\n"
-				+ "       let nw = e.layer.getBounds().getNorthWest();\n"
-				+ "       let se = e.layer.getBounds().getSouthEast();\n"
-				+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
-				+ "     });\n"
-				+ "     let nw = e.layer.getBounds().getNorthWest();\n"
-				+ "     let se = e.layer.getBounds().getSouthEast();\n"
-				+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
-				+ "     e.layer.dbId = id;\n"
-				+ "  } else if(e.layer instanceof L.Polyline){\n"
-				+ "     e.layer.on('pm:edit', (e) => {\n"
-				+ "       let verts = e.layer.getLatLngs();\n"
-				+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
-				+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
-				+ "     });"
-				+ "     e.layer.on('pm:remove', (e) => {\n"
-				+ "       let verts = e.layer.getLatLngs();\n"
-				+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
-				+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
-				+ "     });\n"
-				+ "     let verts = e.layer.getLatLngs();\n"
-				+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
-				+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
-				+ "     e.layer.dbId = id;\n"
 				+ "  }\n"
+				+    setupEventsJSFunction + "(e.layer);\n"
+				+    fireCreateEventJSFunction + "(e.layer);\n"
 				+ "});"
 		);
 	}

@@ -1,0 +1,8 @@
+String filePath = "JavaScript/DrawControl.js";
+String jsCode = null;
+
+try {
+    jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+} catch (IOException | URISyntaxException e) {
+    e.printStackTrace();
+}
