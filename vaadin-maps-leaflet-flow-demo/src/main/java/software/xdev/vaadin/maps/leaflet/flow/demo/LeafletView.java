@@ -145,7 +145,7 @@ public class LeafletView extends VerticalLayout
 		this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
 		
 		if(this.viewLunch) {
-			this.map.addLComponents(this.circleRange);
+			this.map.addLComponents(false, this.circleRange);
 		} else {
 			this.map.removeLComponents(this.circleRange);
 		}
@@ -251,7 +251,7 @@ public class LeafletView extends VerticalLayout
 		// add some logic here for called Markers (token)
 		this.map.addMarkerClickListener(ev -> System.out.println(ev.getTag()));
 		
-		this.map.addLComponents(
+		this.map.addLComponents(true,
 			markerWithDifferentIcon,
 			markerInfo,
 			polygonNoc,

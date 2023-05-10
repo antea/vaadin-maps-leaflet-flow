@@ -214,23 +214,24 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	/**
 	 * add Leaflet component(s) to the map
 	 */
-	public void addLComponents(final LComponent... lComponents)
+	public void addLComponents(boolean fireEvent, final LComponent... lComponents)
 	{
-		this.addLComponents(Arrays.asList(lComponents));
+		this.addLComponents(fireEvent, Arrays.asList(lComponents));
 	}
 	
 	/**
 	 * add Leaflet components to the map
 	 */
-	public void addLComponents(final Collection<LComponent> lComponents)
+	public void addLComponents(boolean fireEvent, final Collection<LComponent> lComponents)
 	{
 		for(final LComponent lComponent : lComponents)
 		{
-			this.addLComponent(lComponent);
+			this.addLComponent(fireEvent, lComponent);
 		}
 	}
 	
-	protected void addLComponent(final LComponent lComponent)
+	// fireEvent: means do we fire a create event? (might be false if we are populating data from the database
+	protected void addLComponent(boolean fireEvent, final LComponent lComponent)
 	{
 		this.getComponents().add(lComponent);
 		try
@@ -242,10 +243,12 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
-				+ CLIENT_COMPONENTS + ".push(item);");
-				// + (fireEvent
-				// ? fireCreateEventAndSetupEventsJSFunction +"(layer);\n"
-				// : ""));
+				+ CLIENT_COMPONENTS + ".push(item);"
+				+ "const vaadinServer = this.$server;\n"
+				+ (fireEvent
+				? fireCreateEventJSFunction +"(item, vaadinServer);\n"
+				: "")
+				+ setupEventsJSFunction +"(item, vaadinServer);\n");
 		}
 		catch(final JsonProcessingException e)
 		{
@@ -289,17 +292,17 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	
 	// use it like this: fireCreateEventJSFunction+"(layer);\n"
 	private static final String fireCreateEventJSFunction =
-		"const fireCreateEventJSFunction = async (layer) => {\n"
-			+ "	 if(layer instanceof L.Marker) {\n"
+		"const fireCreateEventJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
 			+ "     let pos = layer.getLatLng();\n"
 			+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
 			+ "     layer.dbId = id;\n"
-			+ "  } else if(layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "  } else if(layer.constructor === L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
 			+ "     let nw = layer.getBounds().getNorthWest();\n"
 			+ "     let se = layer.getBounds().getSouthEast();\n"
 			+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
 			+ "     layer.dbId = id;\n"
-			+ "  } else if(layer instanceof L.Polyline){\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
 			+ "     let verts = layer.getLatLngs();\n"
 			+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
 			+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
@@ -310,8 +313,8 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	
 	// use it like this: setupEventsJSFunction+"(layer);\n"
 	private static final String setupEventsJSFunction =
-		"const setupEventsJSFunction = async (layer) => {\n"
-			+ "	 if(layer instanceof L.Marker) {\n"
+		"const setupEventsJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
 			+ "     layer.on('pm:edit', (e) => {\n"
 			+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
 			+ "       let pos = e.layer.getLatLng();\n"
@@ -322,7 +325,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "       let pos = e.layer.getLatLng();\n"
 			+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
 			+ "     });\n"
-			+ "  } else if(layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "  } else if(layer.constructor === L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
 			+ "     layer.on('pm:edit', (e) => {\n"
 			+ "       let nw = e.layer.getBounds().getNorthWest();\n"
 			+ "       let se = e.layer.getBounds().getSouthEast();\n"
@@ -333,7 +336,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "       let se = e.layer.getBounds().getSouthEast();\n"
 			+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
 			+ "     });\n"
-			+ "  } else if(layer instanceof L.Polyline){\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
 			+ "     layer.on('pm:edit', (e) => {\n"
 			+ "       let verts = e.layer.getLatLngs();\n"
 			+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
@@ -358,14 +361,14 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				//+ "  drawCircle: false,  \n"
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
-				+ "let vaadinServer = this.$server;"
+				+ "const vaadinServer = this.$server;\n"
 				+ CLIENT_MAP + ".on('pm:create', async (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     addMarkerToClusterGroup(e.layer);\n"
 				+ "  }\n"
-				+    setupEventsJSFunction + "(e.layer);\n"
-				+    fireCreateEventJSFunction + "(e.layer);\n"
+				+    setupEventsJSFunction + "(e.layer, vaadinServer);\n"
+				+    fireCreateEventJSFunction + "(e.layer, vaadinServer);\n"
 				+ "});"
 		);
 	}
