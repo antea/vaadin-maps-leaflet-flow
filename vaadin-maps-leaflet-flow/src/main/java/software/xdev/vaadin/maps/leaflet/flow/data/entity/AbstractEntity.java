@@ -1,6 +1,10 @@
 package software.xdev.vaadin.maps.leaflet.flow.data.entity;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.GenericGenerator;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,19 +17,17 @@ import jakarta.persistence.Version;
 public abstract class AbstractEntity {
 	
 	@Id
-	@GenericGenerator(name = "custom_gen",
-		strategy = "software.xdev.vaadin.maps.leaflet.flow.data.generator.CustomGenerator")
-	@GeneratedValue(generator = "custom_gen")
-	private Long id;
+	@Column(name = "id", nullable = false)
+	private UUID id = UUID.randomUUID();
 	
 	@Version
 	private int version;
 	
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 	
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 	

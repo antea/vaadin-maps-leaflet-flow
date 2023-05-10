@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.component.AttachEvent;
@@ -298,39 +298,49 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ CLIENT_MAP + ".on('pm:create', async (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
-				+ "     let pos = e.layer.getLatLng();\n"
 				+ "     addMarkerToClusterGroup(e.layer);\n"
 				+ "     e.layer.on('pm:edit', (e) => {\n"
 				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+				+ "       let pos = e.layer.getLatLng();\n"
 				+ "       vaadinServer.fireSaveMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
 				+ "     });"
 				+ "     e.layer.on('pm:remove', (e) => {\n"
 				+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
+				+ "       let pos = e.layer.getLatLng();\n"
 				+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
 				+ "     });\n"
+				+ "     let pos = e.layer.getLatLng();\n"
 				+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
 				+ "     e.layer.dbId = id;\n"
-				+ "  } else if(e.layer instanceof L.Polyline){\n"
-				+ "     let verts = e.layer.getLatLngs();\n"
-				+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+				+ "  } else if(e.layer instanceof L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
 				+ "     e.layer.on('pm:edit', (e) => {\n"
-				+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
-				+ "     });"
-				+ "     e.layer.on('pm:remove', (e) => {\n"
-				+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
-				+ "     });\n"
-				+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
-				+ "     e.layer.dbId = id;\n"
-				+ "  } else if(e.layer instanceof L.Rectangle){\n"
-				+ "     let nw = e.layer.getBounds().getNorthWest();\n"
-				+ "     let se = e.layer.getBounds().getSouthEast();\n"
-				+ "     e.layer.on('pm:edit', (e) => {\n"
+				+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+				+ "       let se = e.layer.getBounds().getSouthEast();\n"
 				+ "       vaadinServer.fireSaveRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
 				+ "     });"
 				+ "     e.layer.on('pm:remove', (e) => {\n"
+				+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+				+ "       let se = e.layer.getBounds().getSouthEast();\n"
 				+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
 				+ "     });\n"
+				+ "     let nw = e.layer.getBounds().getNorthWest();\n"
+				+ "     let se = e.layer.getBounds().getSouthEast();\n"
 				+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
+				+ "     e.layer.dbId = id;\n"
+				+ "  } else if(e.layer instanceof L.Polyline){\n"
+				+ "     e.layer.on('pm:edit', (e) => {\n"
+				+ "       let verts = e.layer.getLatLngs();\n"
+				+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+				+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+				+ "     });"
+				+ "     e.layer.on('pm:remove', (e) => {\n"
+				+ "       let verts = e.layer.getLatLngs();\n"
+				+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+				+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+				+ "     });\n"
+				+ "     let verts = e.layer.getLatLngs();\n"
+				+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+				+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
 				+ "     e.layer.dbId = id;\n"
 				+ "  }\n"
 				+ "});"
@@ -519,7 +529,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		Polyline polyline = new Polyline();
 		polyline.setPoints(lPoints);
 		fireEvent(new SavePolylineEvent(this, polyline));
-		return polyline.getId() + "";
+		return polyline.getId().toString();
 	}
 	
 	@ClientCallable
@@ -527,7 +537,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		List<LPoint> lPoints = extractLPoints(points);
 		Polyline polyline = new Polyline();
 		polyline.setPoints(lPoints);
-		polyline.setId(stringToLong(id));
+		polyline.setId(UUID.fromString(id));
 		fireEvent(new SavePolylineEvent(this, polyline));
 	}
 	
@@ -536,7 +546,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		List<LPoint> lPoints = extractLPoints(points);
 		Polyline polyline = new Polyline();
 		polyline.setPoints(lPoints);
-		polyline.setId(stringToLong(id));
+		polyline.setId(UUID.fromString(id));
 		fireEvent(new DeletePolylineEvent(this, polyline));
 	}
 	
@@ -546,7 +556,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		Marker marker = new Marker();
 		marker.setPoint(lPoint);
 		fireEvent(new SaveMarkerEvent(this, marker));
-		return marker.getId() + "";
+		return marker.getId().toString();
 	}
 	
 	@ClientCallable
@@ -554,7 +564,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		LPoint lPoint = extractLPoint(point);
 		Marker marker = new Marker();
 		marker.setPoint(lPoint);
-		marker.setId(stringToLong(id));
+		marker.setId(UUID.fromString(id));
 		fireEvent(new SaveMarkerEvent(this, marker));
 	}
 	
@@ -563,7 +573,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		LPoint lPoint = extractLPoint(point);
 		Marker marker = new Marker();
 		marker.setPoint(lPoint);
-		marker.setId(stringToLong(id));
+		marker.setId(UUID.fromString(id));
 		fireEvent(new DeleteMarkerEvent(this, marker));
 	}
 	
@@ -575,7 +585,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		rectangle.setNwPoint(nwLPoint);
 		rectangle.setSePoint(seLPoint);
 		fireEvent(new SaveRectangleEvent(this, rectangle));
-		return rectangle.getId() + "";
+		return rectangle.getId().toString();
 	}
 	
 	@ClientCallable
@@ -585,7 +595,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		Rectangle rectangle = new Rectangle();
 		rectangle.setNwPoint(nwLPoint);
 		rectangle.setSePoint(seLPoint);
-		rectangle.setId(stringToLong(id));
+		rectangle.setId(UUID.fromString(id));
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 	}
 	
@@ -596,7 +606,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		Rectangle rectangle = new Rectangle();
 		rectangle.setNwPoint(nwLPoint);
 		rectangle.setSePoint(seLPoint);
-		rectangle.setId(stringToLong(id));
+		rectangle.setId(UUID.fromString(id));
 		fireEvent(new DeleteRectangleEvent(this, rectangle));
 	}
 	
