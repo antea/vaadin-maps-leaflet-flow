@@ -17,10 +17,9 @@ import jakarta.persistence.Version;
 public abstract class AbstractEntity {
 	
 	@Id
-	@Basic(optional = false)
-	@Column(name = "ID", nullable = false)
-	@GenericGenerator(name = "seq_id", strategy = "com.yoncabt.abys.core.listener.CustomGenerator", parameters = { @Parameter(name = "sequence", value = "II_FIRM_DOC_PRM_SEQ") })
-	@GeneratedValue(generator = "seq_id")
+	@GenericGenerator(name = "custom_gen",
+		strategy = "software.xdev.vaadin.maps.leaflet.flow.data.generator.CustomGenerator")
+	@GeneratedValue(generator = "custom_gen")
 	private Long id;
 	
 	@Version
