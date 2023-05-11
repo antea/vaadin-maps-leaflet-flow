@@ -3,6 +3,8 @@ package software.xdev.vaadin.maps.leaflet.flow.demo;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -29,12 +31,14 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
 import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
+import software.xdev.vaadin.maps.leaflet.flow.data.service.DbService;
 
 
 @Route("")
 public class LeafletView extends VerticalLayout
 {
 	private boolean viewLunch = false;
+	private DbService dbService;
 	
 	/**
 	 * UI-Components
@@ -62,8 +66,9 @@ public class LeafletView extends VerticalLayout
 	
 	private List<LComponent> lunchLayerGroup;
 	
-	public LeafletView()
+	public LeafletView(DbService service)
 	{
+		this.dbService = service;
 		this.initMapComponents();
 		
 		this.btnLunch.addClickListener(this::btnLunchClick);
@@ -262,10 +267,13 @@ public class LeafletView extends VerticalLayout
 			markerInfo,
 			polygonNoc
 		);
+		
+		
+		
 		this.map.addLComponents(true, this.normalLayerGroup);
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
-			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+			(e) -> dbService.saveMarker(e.getMarker())  );
 		
 		this.map.addListener(LMap.SavePolylineEvent.class,
 			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
