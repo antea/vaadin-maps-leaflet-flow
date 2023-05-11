@@ -13,9 +13,9 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.spring.annotation.EnableVaadin;
 
 
-// @SpringBootApplication
-// temporarily disable dataSourceAutoConfiguration
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
+@SpringBootApplication
+// https://stackoverflow.com/questions/40384056/consider-defining-a-bean-of-type-package-in-your-configuration-spring-boot
+@ComponentScan({"software.xdev.vaadin.maps.leaflet.flow.data"})
 @EntityScan("software.xdev.vaadin.maps.leaflet.flow.data.entity")
 @EnableJpaRepositories("software.xdev.vaadin.maps.leaflet.flow.data.repository")
 @EnableVaadin
