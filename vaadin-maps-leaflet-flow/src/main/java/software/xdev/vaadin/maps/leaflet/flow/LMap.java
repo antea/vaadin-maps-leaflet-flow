@@ -17,12 +17,14 @@ package software.xdev.vaadin.maps.leaflet.flow;
 
 
 
+import static java.lang.Long.parseLong;
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.component.AttachEvent;
@@ -47,6 +49,9 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
+import software.xdev.vaadin.maps.leaflet.flow.data.entity.Rectangle;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
@@ -197,7 +202,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	
 	/**
 	 * This fixes situations where the leafletmap overlays components like Dialogs
-	 * 
+	 *
 	 * @param enabled
 	 *            enable or disable the fix
 	 */
@@ -209,23 +214,24 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	/**
 	 * add Leaflet component(s) to the map
 	 */
-	public void addLComponents(final LComponent... lComponents)
+	public void addLComponents(boolean fireEvent, final LComponent... lComponents)
 	{
-		this.addLComponents(Arrays.asList(lComponents));
+		this.addLComponents(fireEvent, Arrays.asList(lComponents));
 	}
 	
 	/**
 	 * add Leaflet components to the map
 	 */
-	public void addLComponents(final Collection<LComponent> lComponents)
+	public void addLComponents(boolean fireEvent, final Collection<LComponent> lComponents)
 	{
 		for(final LComponent lComponent : lComponents)
 		{
-			this.addLComponent(lComponent);
+			this.addLComponent(fireEvent, lComponent);
 		}
 	}
 	
-	protected void addLComponent(final LComponent lComponent)
+	// fireEvent: means do we fire a create event? (might be false if we are populating data from the database
+	protected void addLComponent(boolean fireEvent, final LComponent lComponent)
 	{
 		this.getComponents().add(lComponent);
 		try
@@ -237,7 +243,11 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
-				+ CLIENT_COMPONENTS + ".push(item);");
+				+ CLIENT_COMPONENTS + ".push(item);"
+				+ (fireEvent
+				? fireCreateEventJSFunction +"(item, this.$server);\n"
+				: "")
+				+ setupEventsJSFunction +"(item, this.$server);\n");
 		}
 		catch(final JsonProcessingException e)
 		{
@@ -248,23 +258,23 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	/**
 	 * remove Leaflet component(s) to the map
 	 */
-	public void removeLComponents(final LComponent... lComponents)
+	public void removeLComponents(boolean fireEvent, final LComponent... lComponents)
 	{
-		this.removeLComponents(Arrays.asList(lComponents));
+		this.removeLComponents(fireEvent, Arrays.asList(lComponents));
 	}
 	
 	/**
 	 * remove Leaflet components to the map
 	 */
-	public void removeLComponents(final Collection<LComponent> lComponents)
+	public void removeLComponents(boolean fireEvent, final Collection<LComponent> lComponents)
 	{
 		for(final LComponent lComponent : lComponents)
 		{
-			this.removeLComponent(lComponent);
+			this.removeLComponent(fireEvent, lComponent);
 		}
 	}
 	
-	protected void removeLComponent(final LComponent lComponent)
+	protected void removeLComponent(boolean fireEvent, final LComponent lComponent)
 	{
 		final int index = this.components.indexOf(lComponent);
 		
@@ -274,34 +284,112 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ (lComponent instanceof LMarker
 				? CLIENT_GLOBAL_MCG + ".removeLayer(delItem);\n"
 				: "delItem.remove();\n")
-				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
+				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);\n"
+				+ (fireEvent
+				? fireDeleteEventJSFunction +"(delItem, this.$server);\n"
+				: ""));
 		}
 	}
 	
+	
+	// use it like this: fireCreateEventJSFunction+"(layer);\n"
+	private static final String fireCreateEventJSFunction =
+		"const fireCreateEventJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
+			+ "     let pos = layer.getLatLng();\n"
+			+ "     let id = await vaadinServer.fireCreateMarkerEvent([pos.lat, pos.lng]);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  } else if(layer.constructor === L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "     let nw = layer.getBounds().getNorthWest();\n"
+			+ "     let se = layer.getBounds().getSouthEast();\n"
+			+ "     let id = await vaadinServer.fireCreateRectangleEvent([nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
+			+ "     let verts = layer.getLatLngs();\n"
+			+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "     let id = await vaadinServer.fireCreatePolylineEvent(...vertsLatLng);\n"
+			+ "     layer.dbId = id;\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "fireCreateEventJSFunction"; // use it like this in java: fireCreateEventJSFunction+"(layer);\n"
+	
+	// use it like this: fireDeleteEventJSFunction+"(layer);\n"
+	private static final String fireDeleteEventJSFunction =
+		"const fireDeleteEventJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
+			+ "     let pos = layer.getLatLng();\n"
+			+ "     vaadinServer.fireDeleteMarkerEvent(layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "  } else if(layer.constructor === L.Rectangle){\n"
+			+ "     let nw = layer.getBounds().getNorthWest();\n"
+			+ "     let se = layer.getBounds().getSouthEast();\n"
+			+ "     vaadinServer.fireDeleteRectangleEvent(layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
+			+ "     let verts = layer.getLatLngs();\n"
+			+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "     vaadinServer.fireDeletePolylineEvent(layer.dbId, ...vertsLatLng);\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "fireDeleteEventJSFunction"; // use it like this in java: fireDeleteEventJSFunction+"(layer);\n"
+	
+	// use it like this: setupEventsJSFunction+"(layer);\n"
+	private static final String setupEventsJSFunction =
+		"const setupEventsJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
+			+ "       let pos = e.layer.getLatLng();\n"
+			+ "       vaadinServer.fireSaveMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
+			+ "       let pos = e.layer.getLatLng();\n"
+			+ "       vaadinServer.fireDeleteMarkerEvent(e.layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "     });\n"
+			+ "  } else if(layer.constructor === L.Rectangle){\n" // rectangle else-if has to be before Polyline because rectangle extends polyline. Otherwise, if layer is a rectangle it will activate the polyline if statement path.
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+			+ "       let se = e.layer.getBounds().getSouthEast();\n"
+			+ "       vaadinServer.fireSaveRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       let nw = e.layer.getBounds().getNorthWest();\n"
+			+ "       let se = e.layer.getBounds().getSouthEast();\n"
+			+ "       vaadinServer.fireDeleteRectangleEvent(e.layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "     });\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
+			+ "     layer.on('pm:edit', (e) => {\n"
+			+ "       let verts = e.layer.getLatLngs();\n"
+			+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "       vaadinServer.fireSavePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+			+ "     });"
+			+ "     layer.on('pm:remove', (e) => {\n"
+			+ "       let verts = e.layer.getLatLngs();\n"
+			+ "       let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "       vaadinServer.fireDeletePolylineEvent(e.layer.dbId, ...vertsLatLng);\n"
+			+ "     });\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "setupEventsJSFunction"; // use it like this in java: setupEventsJSFunction+"(layer);\n"
+	
+	// adds geoman and all the events needed
 	public void initGeomanControls()
 	{
+		
 		this.getElement().executeJs(
 			CLIENT_MAP + ".pm.addControls({  \n"
 				+ "  position: 'topleft',  \n"
 				//+ "  drawCircle: false,  \n"
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
-				+ "let removeMarkerFromClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".removeLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
-				+ CLIENT_MAP + ".on('pm:create', (e) => {\n"
+				+ "const vaadinServer = this.$server;\n"
+				+ CLIENT_MAP + ".on('pm:create', async (e) => {\n"
 				+ "	 if(e.layer instanceof L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     addMarkerToClusterGroup(e.layer);\n"
-				+ "     e.layer.on('pm:edit', (e) => {\n"
-				+ "       "+CLIENT_ENABLE_MAP_DRAGGING_FUNCTION+"();\n" // (declared in the constructor of LMap) I made this method is because: for some reason when you drag a marker you cannot drag the map after
-				+ "     });"
-				+ "     e.layer.on('pm:remove', (e) => {\n"
-				+ "       "+CLIENT_REMOVE_MARKER_GLOBAL_MCG+"(e.layer);\n"
-				+ "     });"
-				+ "  }"
+				+ "  }\n"
+				+    setupEventsJSFunction + "(e.layer, vaadinServer);\n"
+				+    fireCreateEventJSFunction + "(e.layer, vaadinServer);\n"
 				+ "});"
-				// + CLIENT_MAP + ".on('pm:markerdragend', (e) => {\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
-				// + "  enableMapDragging();"
-				// + "});"
 		);
 	}
 	
@@ -394,5 +482,201 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		// https://stackoverflow.com/q/53879753
 		this.getElement().executeJs("let tempMap = " + CLIENT_MAP + "\n"
 			+ "setTimeout(function () { tempMap.invalidateSize(true); }, 100);");
+	}
+	
+	// Events
+	
+	public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
+		ComponentEventListener<T> listener) {
+		return getEventBus().addListener(eventType, listener);
+	}
+	
+	public static abstract class MarkerEvent extends ComponentEvent<LMap> {
+		private Marker marker;
+		
+		protected MarkerEvent(LMap source, Marker marker) {
+			super(source, false); // fromClient - true if the event originated from the client side, false otherwise
+			// its false because we will fire the even programmatically with fireEvent() method.
+			this.marker = marker;
+		}
+		
+		public Marker getMarker() {
+			return marker;
+		}
+	}
+	
+	public static class SaveMarkerEvent extends MarkerEvent {
+		SaveMarkerEvent(LMap source, Marker marker) {
+			super(source, marker);
+		}
+	}
+	
+	public static class DeleteMarkerEvent extends MarkerEvent {
+		DeleteMarkerEvent(LMap source, Marker marker) {
+			super(source, marker);
+		}
+	}
+	
+	public static abstract class RectangleEvent extends ComponentEvent<LMap> {
+		private Rectangle rectangle;
+		
+		protected RectangleEvent(LMap source, Rectangle rectangle) {
+			super(source, false);
+			this.rectangle = rectangle;
+		}
+		
+		public Rectangle getRectangle() {
+			return rectangle;
+		}
+	}
+	
+	public static class SaveRectangleEvent extends RectangleEvent {
+		SaveRectangleEvent(LMap source, Rectangle rectangle) {
+			super(source, rectangle);
+		}
+	}
+	
+	public static class DeleteRectangleEvent extends RectangleEvent {
+		DeleteRectangleEvent(LMap source, Rectangle rectangle) {
+			super(source, rectangle);
+		}
+	}
+	
+	public static abstract class PolylineEvent extends ComponentEvent<LMap> {
+		private Polyline polyline;
+		
+		protected PolylineEvent(LMap source, Polyline polyline) {
+			super(source, false);
+			this.polyline = polyline;
+		}
+		
+		public Polyline getPolyline() {
+			return polyline;
+		}
+	}
+	
+	public static class SavePolylineEvent extends PolylineEvent {
+		SavePolylineEvent(LMap source, Polyline polyline) {
+			super(source, polyline);
+		}
+	}
+	
+	public static class DeletePolylineEvent extends PolylineEvent {
+		DeletePolylineEvent(LMap source, Polyline polyline) {
+			super(source, polyline);
+		}
+	}
+	
+	// make this method return the ID, so it can be stored in JS: https://github.com/geoman-io/leaflet-geoman/issues/248#issuecomment-343852257
+	
+	@ClientCallable
+	private String fireCreatePolylineEvent(final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		polyline.setPoints(lPoints);
+		fireEvent(new SavePolylineEvent(this, polyline));
+		return polyline.getId().toString();
+	}
+	
+	@ClientCallable
+	private void fireSavePolylineEvent(final String id, final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		polyline.setPoints(lPoints);
+		polyline.setId(UUID.fromString(id));
+		fireEvent(new SavePolylineEvent(this, polyline));
+	}
+	
+	@ClientCallable
+	private void fireDeletePolylineEvent(final String id, final Double[]... points){
+		List<LPoint> lPoints = extractLPoints(points);
+		Polyline polyline = new Polyline();
+		polyline.setPoints(lPoints);
+		polyline.setId(UUID.fromString(id));
+		fireEvent(new DeletePolylineEvent(this, polyline));
+	}
+	
+	@ClientCallable
+	private String fireCreateMarkerEvent(final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		marker.setPoint(lPoint);
+		fireEvent(new SaveMarkerEvent(this, marker));
+		return marker.getId().toString();
+	}
+	
+	@ClientCallable
+	private void fireSaveMarkerEvent(final String id, final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		marker.setPoint(lPoint);
+		marker.setId(UUID.fromString(id));
+		fireEvent(new SaveMarkerEvent(this, marker));
+	}
+	
+	@ClientCallable
+	private void fireDeleteMarkerEvent(final String id, final Double[] point){
+		LPoint lPoint = extractLPoint(point);
+		Marker marker = new Marker();
+		marker.setPoint(lPoint);
+		marker.setId(UUID.fromString(id));
+		fireEvent(new DeleteMarkerEvent(this, marker));
+	}
+	
+	@ClientCallable
+	private String fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
+		LPoint nwLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
+		fireEvent(new SaveRectangleEvent(this, rectangle));
+		return rectangle.getId().toString();
+	}
+	
+	@ClientCallable
+	private void fireSaveRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
+		LPoint nwLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
+		rectangle.setId(UUID.fromString(id));
+		fireEvent(new SaveRectangleEvent(this, rectangle));
+	}
+	
+	@ClientCallable
+	private void fireDeleteRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
+		LPoint nwLPoint = extractLPoint(noPoint);
+		LPoint seLPoint = extractLPoint(sePoint);
+		Rectangle rectangle = new Rectangle();
+		rectangle.setNwPoint(nwLPoint);
+		rectangle.setSePoint(seLPoint);
+		rectangle.setId(UUID.fromString(id));
+		fireEvent(new DeleteRectangleEvent(this, rectangle));
+	}
+	
+	private long stringToLong(String input){
+		return parseLong(input);
+	}
+	
+	private List<LPoint> extractLPoints(final Double[][] points)
+	{
+		List<LPoint> lPoints = new ArrayList<>();
+		for(Double[] point : points)
+		{
+			LPoint lPoint = extractLPoint(point);
+			lPoints.add(lPoint);
+		}
+		return lPoints;
+	}
+	
+	private LPoint extractLPoint(final Double[] point)
+	{
+		if(point.length != 2){
+			throw new IllegalArgumentException("point array has to have length of 2");
+		}
+		LPoint lPoint = new LPoint(point[0], point[1]);
+		return lPoint;
 	}
 }
