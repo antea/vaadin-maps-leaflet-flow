@@ -1,6 +1,7 @@
 package software.xdev.vaadin.maps.leaflet.flow.demo;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
@@ -18,6 +19,7 @@ import com.vaadin.flow.router.Route;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
+import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
@@ -53,10 +55,12 @@ public class LeafletView extends VerticalLayout
 	private LMarker markerGreek;
 	private LMarker markerBakery;
 	private LMarker markerLeberkaese;
+	private LRectangle testRect;
+	private LPolyline testPolyline;
 	
-	private LMarkerClusterGroup normalLayerGroup;
+	private List<LComponent> normalLayerGroup;
 	
-	private LMarkerClusterGroup lunchLayerGroup;
+	private List<LComponent> lunchLayerGroup;
 	
 	public LeafletView()
 	{
@@ -121,15 +125,15 @@ public class LeafletView extends VerticalLayout
 	
 	// Event listener to change marker cluster radius
 	private void clusterButtonClick(final ClickEvent<Button> event) {
-		if (this.clusterPixels.getValue() == ""){
+		if (this.clusterPixels.getValue().isEmpty()){
 			Notification.show("Please enter a value.");
 		} else {
 			// Layout rerendered with a new cluster radius.
 			int clusterRadius = Integer.parseInt(this.clusterPixels.getValue());
-			this.normalLayerGroup.setClusterRadius(clusterRadius);
-			this.lunchLayerGroup.setClusterRadius(clusterRadius);
-			this.map.removeLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup );
-			this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+			// this.normalLayerGroup.setClusterRadius(clusterRadius);
+			// this.lunchLayerGroup.setClusterRadius(clusterRadius);
+			// this.map.removeLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup );
+			// this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
 			
 			// Global map marker cluster group
 			this.map.setClusterRadius(clusterRadius);
@@ -141,13 +145,15 @@ public class LeafletView extends VerticalLayout
 		this.viewLunch = !this.viewLunch;
 		
 		this.map.setViewPoint(new LCenter(49.675126, 12.160733, this.viewLunch ? 16 : 17));
-		this.map.removeLLayerGroup(this.viewLunch ? this.normalLayerGroup : this.lunchLayerGroup);
-		this.map.addLLayerGroup(this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+		this.map.removeLComponents(true, this.viewLunch ? this.normalLayerGroup : this.lunchLayerGroup);
+		this.map.addLComponents(true, this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
 		
 		if(this.viewLunch) {
 			this.map.addLComponents(false, this.circleRange);
+			this.map.addLComponents(true, this.testRect, this.testPolyline);
 		} else {
-			this.map.removeLComponents(this.circleRange);
+			this.map.removeLComponents(false, this.circleRange);
+			this.map.removeLComponents(true, this.testRect, this.testPolyline);
 		}
 		
 		this.btnLunch.setText(this.viewLunch ? "Go back to the normal view" : "Where do XDEV employees go for lunch?");
@@ -155,6 +161,8 @@ public class LeafletView extends VerticalLayout
 	
 	private void initMapComponents()
 	{
+		this.testRect = new LRectangle(new LPoint(49.675126, 12.160733), new LPoint(49.67599, 12.16993));
+		
 		this.markerZob = new LMarker(49.673470, 12.160108, "ZoB");
 		this.markerZob.setPopup("Central bus station");
 		
@@ -189,15 +197,15 @@ public class LeafletView extends VerticalLayout
 		polygonNoc.setStroke(false);
 		polygonNoc.setPopup("NOC-Nordoberpfalz Center");
 		
-		final LPolyline customPolyline = new LPolyline(
+		this.testPolyline = new LPolyline(
 			Arrays.asList(
 				new LPoint(49.67499, 12.15909),
 				new LPoint(49.67599, 12.16024),
 				new LPoint(49.67699, 12.15998),
 				new LPoint(49.67599, 12.15800),
 				new LPoint(49.67599, 12.15849)));
-		customPolyline.setStrokeColor("#FF0000");
-		customPolyline.setPopup("custom polyline");
+		this.testPolyline.setStrokeColor("#FF0000");
+		this.testPolyline.setPopup("custom polyline");
 		
 		this.markerRathaus = new LMarker(49.675519, 12.163868, "L-22556");
 		this.markerRathaus.setPopup("Old Town Hall");
@@ -223,17 +231,15 @@ public class LeafletView extends VerticalLayout
 		this.markerLeberkaese.setPopup("Fast food like Leberkäsesemmeln");
 		
 		
-		this.normalLayerGroup =
-			new LMarkerClusterGroup(Arrays.asList(this.markerRathaus, this.markerZob));
+		this.normalLayerGroup = Arrays.asList(this.markerRathaus, this.markerZob);
 		
-		this.lunchLayerGroup =
-			new LMarkerClusterGroup(Arrays.asList(
+		this.lunchLayerGroup = Arrays.asList(
 				this.markerPizza,
 				this.markerKebab,
 				this.markerAsia,
 				this.markerGreek,
 				this.markerBakery,
-				this.markerLeberkaese));
+				this.markerLeberkaese);
 		
 		
 		this.map = new LMap(49.675126, 12.160733, 17);
@@ -254,11 +260,9 @@ public class LeafletView extends VerticalLayout
 		this.map.addLComponents(true,
 			markerWithDifferentIcon,
 			markerInfo,
-			polygonNoc,
-			customPolyline,
-			new LRectangle(new LPoint(49.675126, 12.160733), new LPoint(49.67599, 12.16993))
+			polygonNoc
 		);
-		this.map.addLLayerGroup(this.normalLayerGroup);
+		this.map.addLComponents(true, this.normalLayerGroup);
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
 			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );

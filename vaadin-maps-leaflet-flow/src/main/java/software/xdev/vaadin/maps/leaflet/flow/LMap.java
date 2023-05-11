@@ -244,11 +244,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
 				+ CLIENT_COMPONENTS + ".push(item);"
-				+ "const vaadinServer = this.$server;\n"
 				+ (fireEvent
-				? fireCreateEventJSFunction +"(item, vaadinServer);\n"
+				? fireCreateEventJSFunction +"(item, this.$server);\n"
 				: "")
-				+ setupEventsJSFunction +"(item, vaadinServer);\n");
+				+ setupEventsJSFunction +"(item, this.$server);\n");
 		}
 		catch(final JsonProcessingException e)
 		{
@@ -259,23 +258,23 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	/**
 	 * remove Leaflet component(s) to the map
 	 */
-	public void removeLComponents(final LComponent... lComponents)
+	public void removeLComponents(boolean fireEvent, final LComponent... lComponents)
 	{
-		this.removeLComponents(Arrays.asList(lComponents));
+		this.removeLComponents(fireEvent, Arrays.asList(lComponents));
 	}
 	
 	/**
 	 * remove Leaflet components to the map
 	 */
-	public void removeLComponents(final Collection<LComponent> lComponents)
+	public void removeLComponents(boolean fireEvent, final Collection<LComponent> lComponents)
 	{
 		for(final LComponent lComponent : lComponents)
 		{
-			this.removeLComponent(lComponent);
+			this.removeLComponent(fireEvent, lComponent);
 		}
 	}
 	
-	protected void removeLComponent(final LComponent lComponent)
+	protected void removeLComponent(boolean fireEvent, final LComponent lComponent)
 	{
 		final int index = this.components.indexOf(lComponent);
 		
@@ -285,7 +284,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ (lComponent instanceof LMarker
 				? CLIENT_GLOBAL_MCG + ".removeLayer(delItem);\n"
 				: "delItem.remove();\n")
-				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);");
+				+ CLIENT_COMPONENTS + ".splice(" + index + ",1);\n"
+				+ (fireEvent
+				? fireDeleteEventJSFunction +"(delItem, this.$server);\n"
+				: ""));
 		}
 	}
 	
@@ -310,6 +312,24 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "  }\n"
 			+ "}\n"
 			+ "fireCreateEventJSFunction"; // use it like this in java: fireCreateEventJSFunction+"(layer);\n"
+	
+	// use it like this: fireDeleteEventJSFunction+"(layer);\n"
+	private static final String fireDeleteEventJSFunction =
+		"const fireDeleteEventJSFunction = async (layer, vaadinServer) => {\n"
+			+ "	 if(layer.constructor === L.Marker) {\n"
+			+ "     let pos = layer.getLatLng();\n"
+			+ "     vaadinServer.fireDeleteMarkerEvent(layer.dbId, [pos.lat, pos.lng]);\n"
+			+ "  } else if(layer.constructor === L.Rectangle){\n"
+			+ "     let nw = layer.getBounds().getNorthWest();\n"
+			+ "     let se = layer.getBounds().getSouthEast();\n"
+			+ "     vaadinServer.fireDeleteRectangleEvent(layer.dbId, [nw.lat, nw.lng], [se.lat, se.lng]);\n"
+			+ "  } else if(layer.constructor === L.Polyline){\n"
+			+ "     let verts = layer.getLatLngs();\n"
+			+ "     let vertsLatLng = verts.map((pos) => [pos.lat, pos.lng]);\n"
+			+ "     vaadinServer.fireDeletePolylineEvent(layer.dbId, ...vertsLatLng);\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "fireDeleteEventJSFunction"; // use it like this in java: fireDeleteEventJSFunction+"(layer);\n"
 	
 	// use it like this: setupEventsJSFunction+"(layer);\n"
 	private static final String setupEventsJSFunction =
