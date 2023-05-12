@@ -48,6 +48,8 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
+import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
+import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
 import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
@@ -492,77 +494,77 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	}
 	
 	public static abstract class MarkerEvent extends ComponentEvent<LMap> {
-		private Marker marker;
+		private LMarker marker;
 		
-		protected MarkerEvent(LMap source, Marker marker) {
+		protected MarkerEvent(LMap source, LMarker marker) {
 			super(source, false); // fromClient - true if the event originated from the client side, false otherwise
 			// its false because we will fire the even programmatically with fireEvent() method.
 			this.marker = marker;
 		}
 		
-		public Marker getMarker() {
+		public LMarker getMarker() {
 			return marker;
 		}
 	}
 	
 	public static class SaveMarkerEvent extends MarkerEvent {
-		SaveMarkerEvent(LMap source, Marker marker) {
+		SaveMarkerEvent(LMap source, LMarker marker) {
 			super(source, marker);
 		}
 	}
 	
 	public static class DeleteMarkerEvent extends MarkerEvent {
-		DeleteMarkerEvent(LMap source, Marker marker) {
+		DeleteMarkerEvent(LMap source, LMarker marker) {
 			super(source, marker);
 		}
 	}
 	
 	public static abstract class RectangleEvent extends ComponentEvent<LMap> {
-		private Rectangle rectangle;
+		private LRectangle rectangle;
 		
-		protected RectangleEvent(LMap source, Rectangle rectangle) {
+		protected RectangleEvent(LMap source, LRectangle rectangle) {
 			super(source, false);
 			this.rectangle = rectangle;
 		}
 		
-		public Rectangle getRectangle() {
+		public LRectangle getRectangle() {
 			return rectangle;
 		}
 	}
 	
 	public static class SaveRectangleEvent extends RectangleEvent {
-		SaveRectangleEvent(LMap source, Rectangle rectangle) {
+		SaveRectangleEvent(LMap source, LRectangle rectangle) {
 			super(source, rectangle);
 		}
 	}
 	
 	public static class DeleteRectangleEvent extends RectangleEvent {
-		DeleteRectangleEvent(LMap source, Rectangle rectangle) {
+		DeleteRectangleEvent(LMap source, LRectangle rectangle) {
 			super(source, rectangle);
 		}
 	}
 	
 	public static abstract class PolylineEvent extends ComponentEvent<LMap> {
-		private Polyline polyline;
+		private LPolyline polyline;
 		
-		protected PolylineEvent(LMap source, Polyline polyline) {
+		protected PolylineEvent(LMap source, LPolyline polyline) {
 			super(source, false);
 			this.polyline = polyline;
 		}
 		
-		public Polyline getPolyline() {
+		public LPolyline getPolyline() {
 			return polyline;
 		}
 	}
 	
 	public static class SavePolylineEvent extends PolylineEvent {
-		SavePolylineEvent(LMap source, Polyline polyline) {
+		SavePolylineEvent(LMap source, LPolyline polyline) {
 			super(source, polyline);
 		}
 	}
 	
 	public static class DeletePolylineEvent extends PolylineEvent {
-		DeletePolylineEvent(LMap source, Polyline polyline) {
+		DeletePolylineEvent(LMap source, LPolyline polyline) {
 			super(source, polyline);
 		}
 	}
@@ -572,8 +574,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private String fireCreatePolylineEvent(final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
-		Polyline polyline = new Polyline();
-		polyline.setPoints(lPoints);
+		LPolyline polyline = new LPolyline(lPoints);
 		fireEvent(new SavePolylineEvent(this, polyline));
 		return polyline.getId().toString();
 	}
@@ -581,8 +582,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private void fireSavePolylineEvent(final String id, final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
-		Polyline polyline = new Polyline();
-		polyline.setPoints(lPoints);
+		LPolyline polyline = new LPolyline(lPoints);
 		polyline.setId(UUID.fromString(id));
 		fireEvent(new SavePolylineEvent(this, polyline));
 	}
@@ -590,8 +590,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private void fireDeletePolylineEvent(final String id, final Double[]... points){
 		List<LPoint> lPoints = extractLPoints(points);
-		Polyline polyline = new Polyline();
-		polyline.setPoints(lPoints);
+		LPolyline polyline = new LPolyline(lPoints);
 		polyline.setId(UUID.fromString(id));
 		fireEvent(new DeletePolylineEvent(this, polyline));
 	}
@@ -599,8 +598,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private String fireCreateMarkerEvent(final Double[] point){
 		LPoint lPoint = extractLPoint(point);
-		Marker marker = new Marker();
-		marker.setPoint(lPoint);
+		LMarker marker = new LMarker(lPoint);
 		fireEvent(new SaveMarkerEvent(this, marker));
 		return marker.getId().toString();
 	}
@@ -608,8 +606,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private void fireSaveMarkerEvent(final String id, final Double[] point){
 		LPoint lPoint = extractLPoint(point);
-		Marker marker = new Marker();
-		marker.setPoint(lPoint);
+		LMarker marker = new LMarker(lPoint);
 		marker.setId(UUID.fromString(id));
 		fireEvent(new SaveMarkerEvent(this, marker));
 	}
@@ -617,8 +614,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	@ClientCallable
 	private void fireDeleteMarkerEvent(final String id, final Double[] point){
 		LPoint lPoint = extractLPoint(point);
-		Marker marker = new Marker();
-		marker.setPoint(lPoint);
+		LMarker marker = new LMarker(lPoint);
 		marker.setId(UUID.fromString(id));
 		fireEvent(new DeleteMarkerEvent(this, marker));
 	}
@@ -627,9 +623,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	private String fireCreateRectangleEvent(final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
-		Rectangle rectangle = new Rectangle();
-		rectangle.setNwPoint(nwLPoint);
-		rectangle.setSePoint(seLPoint);
+		LRectangle rectangle = new LRectangle(nwLPoint, seLPoint);
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 		return rectangle.getId().toString();
 	}
@@ -638,9 +632,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	private void fireSaveRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
-		Rectangle rectangle = new Rectangle();
-		rectangle.setNwPoint(nwLPoint);
-		rectangle.setSePoint(seLPoint);
+		LRectangle rectangle = new LRectangle(nwLPoint, seLPoint);
 		rectangle.setId(UUID.fromString(id));
 		fireEvent(new SaveRectangleEvent(this, rectangle));
 	}
@@ -649,9 +641,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	private void fireDeleteRectangleEvent(final String id, final Double[] noPoint, final Double[] sePoint){
 		LPoint nwLPoint = extractLPoint(noPoint);
 		LPoint seLPoint = extractLPoint(sePoint);
-		Rectangle rectangle = new Rectangle();
-		rectangle.setNwPoint(nwLPoint);
-		rectangle.setSePoint(seLPoint);
+		LRectangle rectangle = new LRectangle(nwLPoint, seLPoint);
 		rectangle.setId(UUID.fromString(id));
 		fireEvent(new DeleteRectangleEvent(this, rectangle));
 	}
