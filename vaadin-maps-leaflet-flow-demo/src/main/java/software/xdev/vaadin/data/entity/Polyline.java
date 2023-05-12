@@ -1,12 +1,10 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.entity;
+package software.xdev.vaadin.data.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Convert;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
 
