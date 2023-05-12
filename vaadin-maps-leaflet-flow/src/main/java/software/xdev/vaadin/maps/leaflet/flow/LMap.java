@@ -245,10 +245,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ (lComponent.getPopup() != null
 				? "item.bindPopup('" + escapeEcmaScript(lComponent.getPopup()) + "');\n"
 				: "")
-				+ CLIENT_COMPONENTS + ".push(item);"
+				+ CLIENT_COMPONENTS + ".push(item);\n"
 				+ (fireEvent
-				? fireCreateEventJSFunction +"(item, this.$server);\n"
-				: "")
+				? fireCreateEventJSFunction +"(item, this.$server);\n" // this will set the dbId of the layer in JS
+				: "item.dbId = '" + lComponent.getId().toString() + "';\n") // here we do not send the create event, but we need to set the id to track it.
 				+ setupEventsJSFunction +"(item, this.$server);\n");
 		}
 		catch(final JsonProcessingException e)
@@ -385,7 +385,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
 				+ "const vaadinServer = this.$server;\n"
 				+ CLIENT_MAP + ".on('pm:create', async (e) => {\n"
-				+ "	 if(e.layer instanceof L.Marker) {\n"
+				+ "	 if(e.layer.constructor === L.Marker) {\n"
 				+ "     e.layer.remove();\n" // so its not added to the map in addition to being added to the cluster
 				+ "     addMarkerToClusterGroup(e.layer);\n"
 				+ "  }\n"
