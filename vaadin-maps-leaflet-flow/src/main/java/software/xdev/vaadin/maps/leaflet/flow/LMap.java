@@ -51,9 +51,6 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
 import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Rectangle;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
@@ -99,7 +96,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		// bind map to div
 		this.getElement().executeJs(CLIENT_MAP + "="
 			+ "new L.map(this.getElementsByTagName('div')[0]);\n"
-			+ CLIENT_MAP + "._layersMaxZoom = 19;\n"  // why am I doing this: https://github.com/mapbox/mapbox-gl-leaflet/issues/113);
+			+ CLIENT_MAP + "._layersMaxZoom = 18;\n"  // why am I doing this: https://github.com/mapbox/mapbox-gl-leaflet/issues/113, it was 19 before and I has some small bugs with marker cluster for some reason, I made it 18 and it worked (think its because its the default)
 			+ CLIENT_ENABLE_MAP_DRAGGING_FUNCTION + " = () => "+ CLIENT_MAP +".dragging.enable();\n" // I made this method is because: for some reason when you drag a marker you cannot drag the map after
 			+ CLIENT_REMOVE_MARKER_GLOBAL_MCG + " = (layer) => "+ CLIENT_GLOBAL_MCG +".removeLayer(layer);\n"
 		);
