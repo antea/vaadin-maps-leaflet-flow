@@ -18,6 +18,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import software.xdev.vaadin.data.entity.Marker;
+import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
@@ -30,7 +32,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
 import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
-import software.xdev.vaadin.maps.leaflet.flow.data.service.DbService;
+
 
 
 @Route("")
@@ -266,17 +268,12 @@ public class LeafletView extends VerticalLayout
 			markerInfo,
 			polygonNoc
 		);
-<<<<<<< HEAD
-		
-		
-		
-		this.map.addLComponents(true, this.normalLayerGroup);
-=======
+
 		this.map.addLComponents(true, this.normalListComponents);
->>>>>>> 81751c640c88110697f824a9d129807c911a05e5
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
-			(e) -> dbService.saveMarker(e.getMarker())  );
+			// TODO change event LMarker into marker to be saved
+			(e) -> dbService.saveMarker(new Marker())  );
 		
 		this.map.addListener(LMap.SavePolylineEvent.class,
 			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );

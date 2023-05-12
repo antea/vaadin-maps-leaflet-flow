@@ -3,7 +3,6 @@ package software.xdev.vaadin.data.entity;
 
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import software.xdev.vaadin.data.entity.AbstractEntity;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
 
