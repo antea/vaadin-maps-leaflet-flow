@@ -17,7 +17,11 @@ package software.xdev.vaadin.maps.leaflet.flow.data;
 
 
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import jakarta.persistence.Version;
 
 
 /**
@@ -31,4 +35,8 @@ public interface LComponent
 	String buildClientJSItems() throws JsonProcessingException;
 	
 	String getPopup();
+	
+	UUID getId();
+	
+	void setId(UUID id);
 }

@@ -1,15 +1,15 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.service;
+package software.xdev.vaadin.data.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Marker;
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Polyline;
-import software.xdev.vaadin.maps.leaflet.flow.data.repository.MarkerRepository;
-import software.xdev.vaadin.maps.leaflet.flow.data.repository.PolylineRepository;
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Rectangle;
-import software.xdev.vaadin.maps.leaflet.flow.data.repository.RectangleRepository;
+import software.xdev.vaadin.data.entity.Marker;
+import software.xdev.vaadin.data.entity.Polyline;
+import software.xdev.vaadin.data.repository.MarkerRepository;
+import software.xdev.vaadin.data.repository.PolylineRepository;
+import software.xdev.vaadin.data.entity.Rectangle;
+import software.xdev.vaadin.data.repository.RectangleRepository;
 
 
 @Service

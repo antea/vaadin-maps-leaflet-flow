@@ -15,6 +15,8 @@
  */
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,6 +33,13 @@ public class LMarker implements LComponent
 	 * Tag for custom meta-data
 	 */
 	private String tag;
+	private UUID id = UUID.randomUUID();
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
 
 	/**
@@ -42,6 +51,11 @@ public class LMarker implements LComponent
 	public LMarker(final double lat, final double lon)
 	{
 		this(lat, lon, null);
+	}
+	
+	public LMarker(final LPoint point)
+	{
+		this(point.getLat(), point.getLon());
 	}
 
 	public LMarker(final double lat, final double lon, final String tag)
@@ -91,12 +105,17 @@ public class LMarker implements LComponent
 	{
 		this.properties = properties;
 	}
-
+	
+	public LPoint getPoint()
+	{
+		return new LPoint(this.getLat(),this.getLon());
+	}
+	
 	public double getLat()
 	{
 		return this.geometry.getCoordinates().get(0);
 	}
-
+	
 	public void setLat(final double lat)
 	{
 		this.geometry.getCoordinates().set(0, lat);

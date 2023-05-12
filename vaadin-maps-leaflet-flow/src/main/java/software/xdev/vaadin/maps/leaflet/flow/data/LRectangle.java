@@ -1,5 +1,7 @@
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,6 +12,13 @@ public class LRectangle implements LComponent
 	private final LPoint sePoint;
 	private final LPolygonOptions properties;
 	
+	private UUID id = UUID.randomUUID();
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
 	
 	public LRectangle(final LPoint nwPoint, final LPoint sePoint)
 	{

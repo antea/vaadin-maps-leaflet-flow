@@ -1,15 +1,10 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.entity;
+package software.xdev.vaadin.data.entity;
 
 import java.util.UUID;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Version;
 
 
