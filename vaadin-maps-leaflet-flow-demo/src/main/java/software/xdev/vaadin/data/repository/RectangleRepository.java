@@ -1,8 +1,8 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.repository;
+package software.xdev.vaadin.data.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import software.xdev.vaadin.maps.leaflet.flow.data.entity.Rectangle;
+import software.xdev.vaadin.data.entity.Rectangle;
 
 
 public interface RectangleRepository extends JpaRepository<Rectangle, Long> {

@@ -1,4 +1,4 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.generator;
+package software.xdev.vaadin.data.generator;
 
 import java.io.Serializable;
 import java.util.Properties;

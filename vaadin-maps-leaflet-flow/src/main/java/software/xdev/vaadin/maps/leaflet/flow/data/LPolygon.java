@@ -18,7 +18,11 @@ package software.xdev.vaadin.maps.leaflet.flow.data;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +32,14 @@ public class LPolygon implements LComponent
 {
 	private final LPolygonGeometry geometry;
 	private final LPolygonOptions properties;
+	
+	private UUID id = UUID.randomUUID();
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
 	
 	public LPolygon(final LPoint... points)
 	{
@@ -57,7 +69,16 @@ public class LPolygon implements LComponent
 		this.properties = new LPolygonOptions();
 		this.geometry = new LPolygonGeometry("Polygon", posis);
 	}
-	
+	public List<LPoint> getPoints(){
+		List<LPoint> lPoints = new ArrayList<>();
+		for(List<Double> point:
+			getGeometry().getCoordinates())
+		{
+			lPoints.add(new LPoint(point.get(0), point.get(1)));
+		}
+		
+		return lPoints;
+	}
 	public LPolygonGeometry getGeometry(){
 		return this.geometry;
 	}

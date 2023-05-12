@@ -23,7 +23,6 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
-import software.xdev.vaadin.maps.leaflet.flow.data.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolyline;
@@ -58,9 +57,9 @@ public class LeafletView extends VerticalLayout
 	private LRectangle testRect;
 	private LPolyline testPolyline;
 	
-	private List<LComponent> normalLayerGroup;
+	private List<LComponent> normalListComponents;
 	
-	private List<LComponent> lunchLayerGroup;
+	private List<LComponent> lunchListComponents;
 	
 	public LeafletView()
 	{
@@ -145,8 +144,8 @@ public class LeafletView extends VerticalLayout
 		this.viewLunch = !this.viewLunch;
 		
 		this.map.setViewPoint(new LCenter(49.675126, 12.160733, this.viewLunch ? 16 : 17));
-		this.map.removeLComponents(true, this.viewLunch ? this.normalLayerGroup : this.lunchLayerGroup);
-		this.map.addLComponents(true, this.viewLunch ? this.lunchLayerGroup : this.normalLayerGroup);
+		this.map.removeLComponents(true, this.viewLunch ? this.normalListComponents : this.lunchListComponents);
+		this.map.addLComponents(true, this.viewLunch ? this.lunchListComponents : this.normalListComponents);
 		
 		if(this.viewLunch) {
 			this.map.addLComponents(false, this.circleRange);
@@ -231,9 +230,9 @@ public class LeafletView extends VerticalLayout
 		this.markerLeberkaese.setPopup("Fast food like Leberkäsesemmeln");
 		
 		
-		this.normalLayerGroup = Arrays.asList(this.markerRathaus, this.markerZob);
+		this.normalListComponents = Arrays.asList(this.markerRathaus, this.markerZob);
 		
-		this.lunchLayerGroup = Arrays.asList(
+		this.lunchListComponents = Arrays.asList(
 				this.markerPizza,
 				this.markerKebab,
 				this.markerAsia,
@@ -262,7 +261,7 @@ public class LeafletView extends VerticalLayout
 			markerInfo,
 			polygonNoc
 		);
-		this.map.addLComponents(true, this.normalLayerGroup);
+		this.map.addLComponents(true, this.normalListComponents);
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
 			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );

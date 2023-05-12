@@ -17,12 +17,24 @@ package software.xdev.vaadin.maps.leaflet.flow.data;
 
 
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.persistence.Version;
 
 
 public class LCircle implements LComponent
 {
+	
+	private UUID id = UUID.randomUUID();
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
 	
 	private LPoint geometry;
 	private LPolygonOptions properties;
