@@ -1,4 +1,4 @@
-package software.xdev.vaadin.maps.leaflet.flow.data.entity;
+package software.xdev.vaadin.maps.leaflet.flow.data.Converter;
 
 import java.util.ArrayList;
 import java.util.List;
