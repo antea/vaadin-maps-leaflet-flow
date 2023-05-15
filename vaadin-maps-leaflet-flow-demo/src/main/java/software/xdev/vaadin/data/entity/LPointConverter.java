@@ -2,8 +2,9 @@ package software.xdev.vaadin.data.entity;
 
 import java.util.List;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
 

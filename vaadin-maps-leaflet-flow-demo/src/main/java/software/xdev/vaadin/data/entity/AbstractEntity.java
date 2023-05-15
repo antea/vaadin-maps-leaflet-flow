@@ -2,10 +2,10 @@ package software.xdev.vaadin.data.entity;
 
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Version;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 
 @MappedSuperclass
