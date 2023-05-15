@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
@@ -13,6 +14,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 public class Polyline extends AbstractEntity
 {
 	
+	@NotBlank
 	@Convert(converter = LPointConverter.class)
 	private List<LPoint> points = new ArrayList<>();
 	

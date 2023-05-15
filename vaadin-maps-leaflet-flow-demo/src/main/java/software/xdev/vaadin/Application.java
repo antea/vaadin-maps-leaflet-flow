@@ -15,9 +15,9 @@ import com.vaadin.flow.spring.annotation.EnableVaadin;
 
 @SpringBootApplication
 // https://stackoverflow.com/questions/40384056/consider-defining-a-bean-of-type-package-in-your-configuration-spring-boot
-// @ComponentScan({"software.xdev.vaadin.maps.leaflet.flow.data", "software.xdev.vaadin.maps.leaflet.flow.data.entity"})
-// @EntityScan("software.xdev.vaadin.maps.leaflet.flow.data.entity")
-// @EnableJpaRepositories(basePackages = "software.xdev.vaadin.maps.leaflet.flow.data")
+@ComponentScan({"software.xdev.vaadin.data", "software.xdev.vaadin.data.entity"})
+@EntityScan("software.xdev.vaadin.data.entity")
+@EnableJpaRepositories(basePackages = "software.xdev.vaadin.data")
 @EnableVaadin
 @Push
 

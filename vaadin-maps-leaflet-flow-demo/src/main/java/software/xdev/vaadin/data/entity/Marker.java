@@ -1,9 +1,11 @@
 package software.xdev.vaadin.data.entity;
 
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
 
-import jakarta.persistence.Convert;
+
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
@@ -12,6 +14,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 public class Marker extends AbstractEntity
 {
 	
+	@NotBlank
 	@Convert(converter = LPointConverter.class)
 	private LPoint point;
 	

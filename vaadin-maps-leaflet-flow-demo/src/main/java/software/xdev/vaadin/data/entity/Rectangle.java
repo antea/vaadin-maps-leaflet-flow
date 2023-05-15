@@ -4,6 +4,7 @@ package software.xdev.vaadin.data.entity;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 
@@ -12,10 +13,12 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 public class Rectangle extends AbstractEntity
 {
 	
+	@NotBlank
 	@Convert(converter = LPointConverter.class)
 	// North West Point
 	private LPoint nwPoint;
 	
+	@NotBlank
 	@Convert(converter = LPointConverter.class)
 	// South East Point
 	private LPoint sePoint;
