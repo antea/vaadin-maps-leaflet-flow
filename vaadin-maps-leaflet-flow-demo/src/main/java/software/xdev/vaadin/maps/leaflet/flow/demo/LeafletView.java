@@ -214,8 +214,8 @@ public class LeafletView extends VerticalLayout
 		this.testPolyline.setStrokeColor("#FF0000");
 		this.testPolyline.setPopup("custom polyline");
 		
-		this.markerRathaus = new LMarker(49.675519, 12.163868, "L-22556");
-		this.markerRathaus.setPopup("Old Town Hall");
+		// this.markerRathaus = new LMarker(49.675519, 12.163868, "L-22556");
+		// this.markerRathaus.setPopup("Old Town Hall");
 		
 		this.circleRange = new LCircle(49.675126, 12.160733, 450);
 		
@@ -238,7 +238,7 @@ public class LeafletView extends VerticalLayout
 		this.markerLeberkaese.setPopup("Fast food like Leberkäsesemmeln");
 		
 		
-		this.normalListComponents = Arrays.asList(this.markerRathaus, this.markerZob);
+		this.normalListComponents = Arrays.asList(this.markerBakery, this.markerZob);
 		
 		this.lunchListComponents = Arrays.asList(
 				this.markerPizza,
