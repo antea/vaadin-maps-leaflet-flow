@@ -1,6 +1,8 @@
 package software.xdev.vaadin.data.entity;
 
 
+import java.util.UUID;
+
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
@@ -15,6 +17,15 @@ public class Marker extends AbstractEntity
 {
 	private double latitude;
 	private double longitude;
+	
+	public Marker() {
+	
+	}
+	public Marker(UUID id, double latitude, double longitude) {
+		super(id);
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
 	
 	public double getLong() { return longitude; }
 	

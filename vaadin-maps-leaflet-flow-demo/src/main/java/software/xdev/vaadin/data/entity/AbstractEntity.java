@@ -21,6 +21,13 @@ public abstract class AbstractEntity {
 	@Version
 	private int version;
 	
+	// default
+	public AbstractEntity() {}
+	
+	public AbstractEntity(UUID id) {
+		this.id = id;
+	}
+	
 	public UUID getId() {
 		return id;
 	}

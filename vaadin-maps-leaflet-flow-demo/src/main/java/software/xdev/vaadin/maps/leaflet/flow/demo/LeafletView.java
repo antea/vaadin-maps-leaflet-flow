@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.yaml.snakeyaml.error.Mark;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
@@ -272,8 +273,10 @@ public class LeafletView extends VerticalLayout
 		this.map.addLComponents(true, this.normalListComponents);
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
-			// TODO change event LMarker into marker to be saved
-			(e) -> dbService.saveMarker(new Marker())  );
+			(e) -> {
+				var lMarker = e.getMarker();
+				dbService.saveMarker(new Marker(lMarker.getId(), lMarker.getLat(), lMarker.getLon()));
+			});
 		
 		this.map.addListener(LMap.SavePolylineEvent.class,
 			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
