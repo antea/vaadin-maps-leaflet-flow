@@ -324,6 +324,7 @@ public class LeafletView extends VerticalLayout
 			componentList.add(new LMarker(marker.getId(), marker.getLat(), marker.getLong()));
 		}
 		
+		// add rect from db to map as LRectangles
 		for (var rect : rectList) {
 			// convert doubles to LPoint
 			var nwPoint = new LPoint(rect.getNwLat(), rect.getNwLong());
@@ -332,7 +333,10 @@ public class LeafletView extends VerticalLayout
 			componentList.add(new LRectangle(rect.getId(), nwPoint, sePoint));
 		}
 		
-
+		// add Polylines from db to map as LPolylines
+		for (var polyline: poylineList) {
+			componentList.add(new LPolyline(polyline.getId(), polyline.getLPoints()));
+		}
 		
 		// add components to map
 		this.map.addLComponents(false, componentList);
