@@ -20,6 +20,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import software.xdev.vaadin.data.entity.Marker;
+import software.xdev.vaadin.data.entity.Rectangle;
 import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
@@ -282,15 +283,24 @@ public class LeafletView extends VerticalLayout
 			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
 		
 		this.map.addListener(LMap.SaveRectangleEvent.class,
-			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
+			(e) -> {
+				var LRect = e.getRectangle();
+				dbService.saveRectangle( new Rectangle( LRect.getId(), LRect.getNwPoint().getLat(), LRect.getNwPoint().getLon(), LRect.getSePoin().getLat(), LRect.getSePoin().getLon() ));
+			});
 		
 		this.map.addListener(LMap.DeleteMarkerEvent.class,
-			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+			(e) -> {
+				var lMarker = e.getMarker();
+				dbService.deleteMarker( new Marker(lMarker.getId(), lMarker.getLat(), lMarker.getLon()));
+				});
 		
 		this.map.addListener(LMap.DeletePolylineEvent.class,
 			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
 		
 		this.map.addListener(LMap.DeleteRectangleEvent.class,
-			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
+			(e) -> {
+				var LRect = e.getRectangle();
+				dbService.deleteRectangle( new Rectangle( LRect.getId(), LRect.getNwPoint().getLat(), LRect.getNwPoint().getLon(), LRect.getSePoin().getLat(), LRect.getSePoin().getLon() ));
+			});
 	}
 }

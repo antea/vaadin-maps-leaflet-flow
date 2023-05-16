@@ -2,6 +2,8 @@ package software.xdev.vaadin.data.entity;
 
 
 
+import java.util.UUID;
+
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +21,17 @@ public class Rectangle extends AbstractEntity
 	
 	private double seLat;
 	private double seLong;
+	
+	// default constructor
+	private Rectangle() {}
+	
+	public Rectangle(UUID id, double nwLat, double nwLong, double seLat, double seLong) {
+		super(id);
+		this.nwLat = nwLat;
+		this.nwLong = nwLong;
+		this.seLat = seLat;
+		this.seLong = seLong;
+	}
 	
 	public double getNwLat()
 	{
