@@ -1,6 +1,7 @@
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +23,10 @@ public class LPolyline extends LPolygon
 	public LPolyline(final List<LPoint> points)
 	{
 		super(points);
+	}
+	
+	public LPolyline(UUID id, final List<LPoint> points) {
+		super(id, points);
 	}
 	@Override
 	public String buildClientJSItems() throws JsonProcessingException

@@ -28,6 +28,11 @@ public class LRectangle implements LComponent
 		this.properties.setFill(true);
 	}
 	
+	public LRectangle(UUID id, final LPoint nwPoint, final LPoint sePoint) {
+		this(nwPoint, sePoint);
+		this.id = id;
+	}
+	
 	@Override
 	public String buildClientJSItems() throws JsonProcessingException
 	{
