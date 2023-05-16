@@ -3,9 +3,6 @@ package software.xdev.vaadin.maps.leaflet.flow.demo;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.yaml.snakeyaml.error.Mark;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -20,6 +17,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import software.xdev.vaadin.data.entity.Marker;
+import software.xdev.vaadin.data.entity.Polyline;
 import software.xdev.vaadin.data.entity.Rectangle;
 import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
@@ -280,7 +278,10 @@ public class LeafletView extends VerticalLayout
 			});
 		
 		this.map.addListener(LMap.SavePolylineEvent.class,
-			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+			(e) -> {
+				var lPolyline = e.getPolyline();
+				dbService.savePolyline( new Polyline(lPolyline.getId(), lPolyline.getList()));
+			});
 		
 		this.map.addListener(LMap.SaveRectangleEvent.class,
 			(e) -> {
@@ -295,7 +296,10 @@ public class LeafletView extends VerticalLayout
 				});
 		
 		this.map.addListener(LMap.DeletePolylineEvent.class,
-			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+			(e) -> {
+				var lPolyline = e.getPolyline();
+				dbService.deletePolyline( new Polyline(lPolyline.getId(), lPolyline.getList()));
+			});
 		
 		this.map.addListener(LMap.DeleteRectangleEvent.class,
 			(e) -> {

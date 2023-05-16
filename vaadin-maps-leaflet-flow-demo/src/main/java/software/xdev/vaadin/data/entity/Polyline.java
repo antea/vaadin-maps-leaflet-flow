@@ -24,6 +24,7 @@ public class Polyline extends AbstractEntity
 		this.points = points;
 	}
 	
-	public @NotBlank List<Double> getPoints() { return this.points; }
+	public List<Double> getPoints() { return this.points; }
 	public void setPoints(List<Double> points) { this.points = points; }
+	
 }

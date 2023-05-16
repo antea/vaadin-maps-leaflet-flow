@@ -23,7 +23,7 @@ public class Rectangle extends AbstractEntity
 	private double seLong;
 	
 	// default constructor
-	private Rectangle() {}
+	public Rectangle() {}
 	
 	public Rectangle(UUID id, double nwLat, double nwLong, double seLat, double seLong) {
 		super(id);
