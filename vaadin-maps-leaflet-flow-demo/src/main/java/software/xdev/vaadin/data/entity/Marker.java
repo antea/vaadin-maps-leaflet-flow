@@ -5,7 +5,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 
-
+import org.hibernate.annotations.Type;
 
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 

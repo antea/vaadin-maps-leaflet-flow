@@ -7,16 +7,19 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Type;
+
 
 @MappedSuperclass
 public abstract class AbstractEntity {
 	
 	@Id
 	@Column(name = "id", nullable = false)
+	@Type(type = "uuid-char")
 	private UUID id = UUID.randomUUID();
 	
-	// @Version
-	// private int version;
+	@Version
+	private int version;
 	
 	public UUID getId() {
 		return id;
@@ -26,9 +29,9 @@ public abstract class AbstractEntity {
 		this.id = id;
 	}
 	
-	// public int getVersion() {
-	// 	return version;
-	// }
+	public int getVersion() {
+		return version;
+	}
 	
 	@Override
 	public int hashCode() {
