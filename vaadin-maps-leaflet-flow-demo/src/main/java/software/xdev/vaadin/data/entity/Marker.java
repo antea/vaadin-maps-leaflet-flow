@@ -13,11 +13,13 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 @Entity
 public class Marker extends AbstractEntity
 {
+	private double latitude;
+	private double longitude;
 	
-	@NotBlank
-	@Convert(converter = LPointConverter.class)
-	private LPoint point;
+	public double getLong() { return longitude; }
 	
-	public void setPoint(LPoint point) { this.point = point; }
-	public LPoint getPoint() { return this.point; }
+	public void setLongitude(final double longitude) {this.longitude = longitude;}
+	
+	public void setLat(double lat) { this.latitude = lat; }
+	public double getLat() { return this.latitude; }
 }

@@ -13,20 +13,50 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 public class Rectangle extends AbstractEntity
 {
 	
-	@NotBlank
-	@Convert(converter = LPointConverter.class)
 	// North West Point
-	private LPoint nwPoint;
+	private double nwLat;
+	private double nwLong;
 	
-	@NotBlank
-	@Convert(converter = LPointConverter.class)
-	// South East Point
-	private LPoint sePoint;
+	private double seLat;
+	private double seLong;
 	
-	public LPoint getNwPoint() { return this.nwPoint; }
-	public void setNwPoint(LPoint point) { this.nwPoint = point; }
+	public double getNwLat()
+	{
+		return nwLat;
+	}
 	
+	public void setNwLat(final double nwLat)
+	{
+		this.nwLat = nwLat;
+	}
 	
-	public LPoint getSePoint() { return this.sePoint; }
-	public void setSePoint(LPoint point) { this.sePoint = point; }
+	public double getNwLong()
+	{
+		return nwLong;
+	}
+	
+	public void setNwLong(final double nwLong)
+	{
+		this.nwLong = nwLong;
+	}
+	
+	public double getSeLat()
+	{
+		return seLat;
+	}
+	
+	public void setSeLat(final double seLat)
+	{
+		this.seLat = seLat;
+	}
+	
+	public double getSeLong()
+	{
+		return seLong;
+	}
+	
+	public void setSeLong(final double seLong)
+	{
+		this.seLong = seLong;
+	}
 }
