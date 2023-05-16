@@ -315,12 +315,24 @@ public class LeafletView extends VerticalLayout
 	
 	private void loadDbComponents() {
 		var markerList = dbService.findAllMarkers();
+		var poylineList = dbService.findAllPolylines();
+		var rectList = dbService.findAllRectangles();
 		List<LComponent> componentList = new ArrayList<LComponent>();
 		
 		// take list of markers from db and add them to list as LMarkers
 		for (var marker : markerList) {
 			componentList.add(new LMarker(marker.getId(), marker.getLat(), marker.getLong()));
 		}
+		
+		for (var rect : rectList) {
+			// convert doubles to LPoint
+			var nwPoint = new LPoint(rect.getNwLat(), rect.getNwLong());
+			var sePoint = new LPoint(rect.getSeLat(), rect.getSeLong());
+			
+			componentList.add(new LRectangle(rect.getId(), nwPoint, sePoint));
+		}
+		
+
 		
 		// add components to map
 		this.map.addLComponents(false, componentList);
