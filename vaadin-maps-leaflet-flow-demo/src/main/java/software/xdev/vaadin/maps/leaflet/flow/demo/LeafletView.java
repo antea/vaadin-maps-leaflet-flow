@@ -1,5 +1,6 @@
 package software.xdev.vaadin.maps.leaflet.flow.demo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -264,13 +265,15 @@ public class LeafletView extends VerticalLayout
 		// add some logic here for called Markers (token)
 		this.map.addMarkerClickListener(ev -> System.out.println(ev.getTag()));
 		
-		this.map.addLComponents(true,
-			markerWithDifferentIcon,
-			markerInfo,
-			polygonNoc
-		);
+		// this.map.addLComponents(true,
+		// 	markerWithDifferentIcon,
+		// 	markerInfo,
+		// 	polygonNoc
+		// );
 
-		this.map.addLComponents(true, this.normalListComponents);
+		// query db and add all components to map as LComponents
+		this.loadDbComponents();
+		
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
 			(e) -> {
@@ -308,5 +311,18 @@ public class LeafletView extends VerticalLayout
 				var LRect = e.getRectangle();
 				dbService.deleteRectangle( new Rectangle( LRect.getId(), LRect.getNwPoint().getLat(), LRect.getNwPoint().getLon(), LRect.getSePoin().getLat(), LRect.getSePoin().getLon() ));
 			});
+	}
+	
+	private void loadDbComponents() {
+		var markerList = dbService.findAllMarkers();
+		List<LComponent> componentList = new ArrayList<LComponent>();
+		
+		// take list of markers from db and add them to list as LMarkers
+		for (var marker : markerList) {
+			componentList.add(new LMarker(marker.getId(), marker.getLat(), marker.getLong()));
+		}
+		
+		// add components to map
+		this.map.addLComponents(false, componentList);
 	}
 }
