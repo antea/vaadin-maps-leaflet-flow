@@ -19,6 +19,7 @@ import com.vaadin.flow.router.Route;
 import software.xdev.vaadin.data.entity.Marker;
 import software.xdev.vaadin.data.entity.Polyline;
 import software.xdev.vaadin.data.entity.Rectangle;
+import software.xdev.vaadin.data.repository.PolylineRepository;
 import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
@@ -298,7 +299,8 @@ public class LeafletView extends VerticalLayout
 		this.map.addListener(LMap.DeletePolylineEvent.class,
 			(e) -> {
 				var lPolyline = e.getPolyline();
-				dbService.deletePolyline( new Polyline(lPolyline.getId(), lPolyline.getList()));
+				// get the actual object by id, this is a fix because creating an object through the constructor wasn't deleting properly
+				dbService.deletePolyline( dbService.getPolylineById(lPolyline.getId()));
 			});
 		
 		this.map.addListener(LMap.DeleteRectangleEvent.class,
