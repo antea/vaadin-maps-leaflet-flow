@@ -34,12 +34,7 @@ public class LPolygon implements LComponent
 	private final LPolygonOptions properties;
 	
 	private UUID id = UUID.randomUUID();
-	public UUID getId() {
-		return id;
-	}
-	public void setId(UUID id) {
-		this.id = id;
-	}
+
 	
 	public LPolygon(final LPoint... points)
 	{
@@ -69,6 +64,19 @@ public class LPolygon implements LComponent
 		this.properties = new LPolygonOptions();
 		this.geometry = new LPolygonGeometry("Polygon", posis);
 	}
+	
+	public LPolygon(UUID id, final List<LPoint> points) {
+		this(points);
+		this.id = id;
+	}
+	
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
+	
 	public List<LPoint> getPoints(){
 		List<LPoint> lPoints = new ArrayList<>();
 		for(List<Double> point:
@@ -79,6 +87,7 @@ public class LPolygon implements LComponent
 		
 		return lPoints;
 	}
+	
 	public LPolygonGeometry getGeometry(){
 		return this.geometry;
 	}

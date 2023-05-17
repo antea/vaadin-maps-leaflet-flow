@@ -34,12 +34,7 @@ public class LMarker implements LComponent
 	 */
 	private String tag;
 	private UUID id = UUID.randomUUID();
-	public UUID getId() {
-		return id;
-	}
-	public void setId(UUID id) {
-		this.id = id;
-	}
+
 
 
 	/**
@@ -64,8 +59,20 @@ public class LMarker implements LComponent
 		this.properties = new LMarkerOptions();
 		this.tag = tag;
 	}
-
-
+	
+	public LMarker(UUID id, final double lat, final double longitude) {
+		this(lat, longitude);
+		this.id = id;
+	}
+	
+	public UUID getId() {
+		return id;
+	}
+	
+	public void setId(UUID id) {
+		this.id = id;
+	}
+	
 	public LIcon getIcon()
 	{
 		return this.properties.getIcon();

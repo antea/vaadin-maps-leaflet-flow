@@ -1,5 +1,6 @@
 package software.xdev.vaadin.maps.leaflet.flow.demo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,6 +17,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import software.xdev.vaadin.data.entity.Marker;
+import software.xdev.vaadin.data.entity.Polyline;
+import software.xdev.vaadin.data.entity.Rectangle;
+import software.xdev.vaadin.data.repository.PolylineRepository;
+import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
@@ -30,10 +36,12 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LRectangle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
+
 @Route("")
 public class LeafletView extends VerticalLayout
 {
 	private boolean viewLunch = false;
+	private DbService dbService;
 	
 	/**
 	 * UI-Components
@@ -61,8 +69,9 @@ public class LeafletView extends VerticalLayout
 	
 	private List<LComponent> lunchListComponents;
 	
-	public LeafletView()
+	public LeafletView(DbService service)
 	{
+		this.dbService = service;
 		this.initMapComponents();
 		
 		this.btnLunch.addClickListener(this::btnLunchClick);
@@ -206,8 +215,8 @@ public class LeafletView extends VerticalLayout
 		this.testPolyline.setStrokeColor("#FF0000");
 		this.testPolyline.setPopup("custom polyline");
 		
-		this.markerRathaus = new LMarker(49.675519, 12.163868, "L-22556");
-		this.markerRathaus.setPopup("Old Town Hall");
+		// this.markerRathaus = new LMarker(49.675519, 12.163868, "L-22556");
+		// this.markerRathaus.setPopup("Old Town Hall");
 		
 		this.circleRange = new LCircle(49.675126, 12.160733, 450);
 		
@@ -230,7 +239,7 @@ public class LeafletView extends VerticalLayout
 		this.markerLeberkaese.setPopup("Fast food like Leberkäsesemmeln");
 		
 		
-		this.normalListComponents = Arrays.asList(this.markerRathaus, this.markerZob);
+		this.normalListComponents = Arrays.asList(this.markerBakery, this.markerZob);
 		
 		this.lunchListComponents = Arrays.asList(
 				this.markerPizza,
@@ -256,29 +265,80 @@ public class LeafletView extends VerticalLayout
 		// add some logic here for called Markers (token)
 		this.map.addMarkerClickListener(ev -> System.out.println(ev.getTag()));
 		
-		this.map.addLComponents(true,
-			markerWithDifferentIcon,
-			markerInfo,
-			polygonNoc
-		);
-		this.map.addLComponents(true, this.normalListComponents);
+		// this.map.addLComponents(true,
+		// 	markerWithDifferentIcon,
+		// 	markerInfo,
+		// 	polygonNoc
+		// );
+
+		// query db and add all components to map as LComponents
+		this.loadDbComponents();
+		
 		this.map.initGeomanControls();
 		this.map.addListener(LMap.SaveMarkerEvent.class,
-			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+			(e) -> {
+				var lMarker = e.getMarker();
+				dbService.saveMarker(new Marker(lMarker.getId(), lMarker.getLat(), lMarker.getLon()));
+			});
 		
 		this.map.addListener(LMap.SavePolylineEvent.class,
-			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+			(e) -> {
+				var lPolyline = e.getPolyline();
+				dbService.savePolyline( new Polyline(lPolyline.getId(), lPolyline.getList()));
+			});
 		
 		this.map.addListener(LMap.SaveRectangleEvent.class,
-			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
+			(e) -> {
+				var LRect = e.getRectangle();
+				dbService.saveRectangle( new Rectangle( LRect.getId(), LRect.getNwPoint().getLat(), LRect.getNwPoint().getLon(), LRect.getSePoin().getLat(), LRect.getSePoin().getLon() ));
+			});
 		
 		this.map.addListener(LMap.DeleteMarkerEvent.class,
-			(e) -> Notification.show(e.getMarker().getId()+" : lat:"+ e.getMarker().getPoint().getLat() )  );
+			(e) -> {
+				var lMarker = e.getMarker();
+				dbService.deleteMarker( new Marker(lMarker.getId(), lMarker.getLat(), lMarker.getLon()));
+				});
 		
 		this.map.addListener(LMap.DeletePolylineEvent.class,
-			(e) -> Notification.show(e.getPolyline().getId()+" : lat:"+ e.getPolyline().getPoints().get(0).getLat() )  );
+			(e) -> {
+				var lPolyline = e.getPolyline();
+				// get the actual object by id, this is a fix because creating an object through the constructor wasn't deleting properly
+				dbService.deletePolyline( dbService.getPolylineById(lPolyline.getId()));
+			});
 		
 		this.map.addListener(LMap.DeleteRectangleEvent.class,
-			(e) -> Notification.show(e.getRectangle().getId()+" : lat:"+ e.getRectangle().getNwPoint().getLat() )  );
+			(e) -> {
+				var LRect = e.getRectangle();
+				dbService.deleteRectangle( new Rectangle( LRect.getId(), LRect.getNwPoint().getLat(), LRect.getNwPoint().getLon(), LRect.getSePoin().getLat(), LRect.getSePoin().getLon() ));
+			});
+	}
+	
+	private void loadDbComponents() {
+		var markerList = dbService.findAllMarkers();
+		var poylineList = dbService.findAllPolylines();
+		var rectList = dbService.findAllRectangles();
+		List<LComponent> componentList = new ArrayList<LComponent>();
+		
+		// take list of markers from db and add them to list as LMarkers
+		for (var marker : markerList) {
+			componentList.add(new LMarker(marker.getId(), marker.getLat(), marker.getLong()));
+		}
+		
+		// add rect from db to map as LRectangles
+		for (var rect : rectList) {
+			// convert doubles to LPoint
+			var nwPoint = new LPoint(rect.getNwLat(), rect.getNwLong());
+			var sePoint = new LPoint(rect.getSeLat(), rect.getSeLong());
+			
+			componentList.add(new LRectangle(rect.getId(), nwPoint, sePoint));
+		}
+		
+		// add Polylines from db to map as LPolylines
+		for (var polyline: poylineList) {
+			componentList.add(new LPolyline(polyline.getId(), polyline.getLPoints()));
+		}
+		
+		// add components to map
+		this.map.addLComponents(false, componentList);
 	}
 }

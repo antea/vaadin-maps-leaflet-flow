@@ -1,6 +1,7 @@
 package software.xdev.vaadin.data.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -18,14 +19,6 @@ public class DbService {
 	private final PolylineRepository polylineRepository;
 	private final RectangleRepository rectangleRepository;
 	
-	
-	// default constructor
-	public DbService() {
-		this.markerRepository = null;
-		this.polylineRepository = null;
-		this.rectangleRepository = null;
-	}
-
 	public DbService(MarkerRepository markerRepository, PolylineRepository polylineRepository, RectangleRepository rectangleRepository) {
 		this.markerRepository = markerRepository;
 		this.polylineRepository = polylineRepository;
@@ -66,4 +59,9 @@ public class DbService {
 	public List<Marker> findAllMarkers() { return markerRepository.findAll(); }
 	public List<Polyline> findAllPolylines() { return polylineRepository.findAll(); }
 	public List<Rectangle> findAllRectangles() { return rectangleRepository.findAll(); }
+	
+	
+	public Polyline getPolylineById(UUID id) {
+		return polylineRepository.getReferenceById(id);
+	}
 }

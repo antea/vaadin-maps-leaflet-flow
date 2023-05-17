@@ -2,10 +2,12 @@ package software.xdev.vaadin.data.entity;
 
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Version;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
+
+import org.hibernate.annotations.Type;
 
 
 @MappedSuperclass
@@ -13,10 +15,18 @@ public abstract class AbstractEntity {
 	
 	@Id
 	@Column(name = "id", nullable = false)
+	@Type(type = "uuid-char")
 	private UUID id = UUID.randomUUID();
 	
 	@Version
 	private int version;
+	
+	// default
+	public AbstractEntity() {}
+	
+	public AbstractEntity(UUID id) {
+		this.id = id;
+	}
 	
 	public UUID getId() {
 		return id;

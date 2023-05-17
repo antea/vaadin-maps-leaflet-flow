@@ -1,6 +1,8 @@
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,10 @@ public class LPolyline extends LPolygon
 	{
 		super(points);
 	}
+	
+	public LPolyline(UUID id, final List<LPoint> points) {
+		super(id, points);
+	}
 	@Override
 	public String buildClientJSItems() throws JsonProcessingException
 	{
@@ -32,4 +38,8 @@ public class LPolyline extends LPolygon
 			+ ");";
 	}
 	
+	public List<Double> getList() {
+		// https://stackoverflow.com/questions/25147094/how-can-i-turn-a-list-of-lists-into-a-list-in-java-8
+		return this.getGeometry().getCoordinates().stream().flatMap(List<Double>::stream).collect(Collectors.toList());
+	}
 }

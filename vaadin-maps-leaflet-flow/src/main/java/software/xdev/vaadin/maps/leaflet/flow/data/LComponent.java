@@ -16,13 +16,9 @@
 package software.xdev.vaadin.maps.leaflet.flow.data;
 
 
-
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import jakarta.persistence.Version;
-
 
 /**
  * Marker Interface for Leaflet Components
