@@ -110,7 +110,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 		
-		this.getElement().executeJs("new L.GridLayer.PDFLayer({\n"
+		this.getElement().executeJs("new PDFLayer({\n"
 			+ "  pdf: \"./leaflet/cb17-100-median-age.pdf\",\n"
 			+ "  page: 1,\n"
 			+ "  minZoom: "+ CLIENT_MAP +".getMinZoom(),\n"
