@@ -57,11 +57,13 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
+@NpmPackage(value = "pdfjs-dist", version = "3.6.172")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
 // Here is the bug issue: https://github.com/vaadin/flow/issues/15825
 @JsModule("./leaflet/import-leaflet-with-plugins.js")
+@JsModule("./leaflet/PDFLayer.js")
 // importing the leaflet css
 @CssImport("leaflet/dist/leaflet.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
@@ -107,6 +109,17 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(CLIENT_GLOBAL_MCG + "="
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
+		
+		this.getElement().executeJs("new L.GridLayer.PDFLayer({\n"
+			+ "  pdf: \"./leaflet/cb17-100-median-age.pdf\",\n"
+			+ "  page: 1,\n"
+			+ "  minZoom: "+ CLIENT_MAP +".getMinZoom(),\n"
+			+ "  maxZoom: "+ CLIENT_MAP +".getMaxZoom(),\n"
+			+ "  bounds: new L.LatLngBounds([-0.308849, -123.453116], [49.923578, -57.619317]),\n"
+			+ "  attribution:\n"
+			+ "    '<a href=\"https://census.gov/newsroom/press-releases/2017/cb17-100.html\">U.S. Census "
+			+ "Bureau</a>'\n"
+			+ "}).addTo("+ CLIENT_MAP +");");
 		
 		// display map coordinates of mouse position
 		this.enableMousePosition();

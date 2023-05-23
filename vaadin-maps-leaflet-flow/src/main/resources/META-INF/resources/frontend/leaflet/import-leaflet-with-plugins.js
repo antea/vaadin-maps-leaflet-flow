@@ -5,3 +5,6 @@ import 'leaflet/dist/leaflet.js';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import '@geoman-io/leaflet-geoman-free';
 import 'leaflet-mouse-position/src/L.Control.MousePosition.js';
+import 'pdfjs-dist/build/pdf.js';
+//import "./PDFLayer.js";
+
