@@ -57,7 +57,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
-@NpmPackage(value = "pdfjs-dist", version = "3.6.172")
+@NpmPackage(value = "pdfjs-dist", version = "1.10.97")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -110,8 +110,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 		
-		this.getElement().executeJs("new PDFLayer({\n"
-			+ "  pdf: \"frontend/leaflet/cb17-100-median-age.pdf\",\n"
+		this.getElement().executeJs("PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS"
+			+ ".version}/pdf.worker.js`;\n"
+			+ "new PDFLayer({\n"
+			+ "  pdf: \"https://www.africau.edu/images/default/sample.pdf\",\n"
 			+ "  page: 1,\n"
 			+ "  minZoom: "+ CLIENT_MAP +".getMinZoom(),\n"
 			+ "  maxZoom: "+ CLIENT_MAP +".getMaxZoom(),\n"

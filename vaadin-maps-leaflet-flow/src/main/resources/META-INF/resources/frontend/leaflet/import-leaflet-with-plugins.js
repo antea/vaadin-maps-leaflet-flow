@@ -6,9 +6,3 @@ import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import '@geoman-io/leaflet-geoman-free';
 import 'leaflet-mouse-position/src/L.Control.MousePosition.js';
 
-
-
-// import PDFJS from 'pdfjs-dist/legacy/build/pdf.js';
-// window.PDFJS = PDFJS
-//import 'Frontend/generated/jar-resources/leaflet/PDFLayer.js'
-
