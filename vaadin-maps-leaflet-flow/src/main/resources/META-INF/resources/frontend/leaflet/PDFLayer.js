@@ -1,5 +1,7 @@
-import L from "Leaflet";
-import { PDFJS } from "PDFJS-dist";
+import L from "leaflet";
+import PDFJS from "pdfjs-dist";
+
+//let PDFJS = { hello: "hello"}
 
 const rescaleCanvas = ctx => {
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -158,11 +160,18 @@ const PDFLayer = L.GridLayer.extend({
     }
 });
 
+function getDocumentWithPDFJS(pdf){
+    return PDFJS.getDocument(pdf);
+}
+
 PDFLayer.addInitHook(function() {
     const pdf = this.options.pdf;
     const page = this.options.page;
-    this._documentPromise = PDFJS.getDocument(pdf);
+    console.log(pdf);
+    this._documentPromise = getDocumentWithPDFJS(pdf);
     this._pagePromise = this._documentPromise.then(pdf => pdf.getPage(page));
 });
 
-export default PDFLayer;
+//export default PDFLayer;
+
+window.PDFLayer = PDFLayer;

@@ -111,7 +111,7 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 		
 		this.getElement().executeJs("new PDFLayer({\n"
-			+ "  pdf: \"./leaflet/cb17-100-median-age.pdf\",\n"
+			+ "  pdf: \"frontend/leaflet/cb17-100-median-age.pdf\",\n"
 			+ "  page: 1,\n"
 			+ "  minZoom: "+ CLIENT_MAP +".getMinZoom(),\n"
 			+ "  maxZoom: "+ CLIENT_MAP +".getMaxZoom(),\n"
