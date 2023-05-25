@@ -393,9 +393,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		);
 		
 		this.getElement().executeJs(
-			"L.control.browserPrint({position: 'topleft', title: 'Print Map'}).addTo(" + CLIENT_MAP + ");\n"
+			"const scale = 100 / window.devicePixelRatio;"
+				+ "L.control.browserPrint({position: 'topleft', title: 'Print Map'}).addTo(" + CLIENT_MAP + ");\n"
 				+ CLIENT_MAP + ".on('browser-pre-print', function(e) {\n"
-				+ "document.querySelector('body').style.zoom = '80%';\n"
+				+ "document.querySelector('body').style.zoom = `${scale}%`;\n"
 				+ "});\n"
 				+ CLIENT_MAP + ".on('browser-print-end', function(e) {\n"
 				+ "document.querySelector('body').style.zoom = '100%';\n"
