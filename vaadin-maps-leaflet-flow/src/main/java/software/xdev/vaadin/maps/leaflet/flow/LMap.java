@@ -20,6 +20,10 @@ package software.xdev.vaadin.maps.leaflet.flow;
 import static java.lang.Long.parseLong;
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -107,6 +111,20 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(CLIENT_GLOBAL_MCG + "="
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
+		
+		
+		String filePath = "JavaScript/SvgOverlay.js";
+		String jsCode = null;
+		
+		try {
+			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		if(jsCode != null){
+			this.getElement().executeJs(jsCode);
+		}
 		
 		// display map coordinates of mouse position
 		this.enableMousePosition();
