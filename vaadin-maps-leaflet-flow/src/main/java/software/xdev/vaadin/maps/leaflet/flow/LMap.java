@@ -397,7 +397,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(
 			CLIENT_MAP + ".pm.addControls({  \n"
 				+ "  position: 'topleft',  \n"
-				//+ "  drawCircle: false,  \n"
+				+ "  drawCircle: false,  \n"
+				+ "  drawPolygon: false,  \n"
+				+ "  drawText: false,  \n"
+				+ "  drawCircleMarker: false,  \n"
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
 				+ "const vaadinServer = this.$server;\n"
