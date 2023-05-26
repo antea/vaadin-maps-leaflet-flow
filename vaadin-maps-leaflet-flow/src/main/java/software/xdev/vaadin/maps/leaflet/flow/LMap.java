@@ -58,6 +58,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 
 
 @NpmPackage(value = "leaflet", version = "1.8.0")
+@NpmPackage(value = "leaflet.browser.print", version = "2.0.2")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
@@ -408,6 +409,20 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 				+    setupEventsJSFunction + "(e.layer, vaadinServer);\n"
 				+    fireCreateEventJSFunction + "(e.layer, vaadinServer);\n"
 				+ "});"
+		);
+		
+		this.getElement().executeJs(
+			"const scale = 100 / window.devicePixelRatio;\n"
+				+ "L.control.browserPrint({position: 'topleft', title: 'Print Map'}).addTo(" + CLIENT_MAP + ");\n"
+				+ CLIENT_MAP + ".on('browser-pre-print', function(e) {\n"
+				+ "document.querySelector('body').style.zoom = `${scale}%`;\n"
+				+ "});\n"
+				+ CLIENT_MAP + ".on('browser-print-end', function(e) {\n"
+				+ "document.querySelector('body').style.zoom = '100%';\n"
+				+ "});\n"
+				+ CLIENT_MAP + ".on('browser-print-cancel', function(e) {\n"
+				+ "document.querySelector('body').style.zoom = '100%';\n"
+				+ "});\n"
 		);
 	}
 	
