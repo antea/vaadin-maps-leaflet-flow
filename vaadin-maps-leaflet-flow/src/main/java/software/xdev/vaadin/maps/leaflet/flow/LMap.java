@@ -61,6 +61,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
+@NpmPackage(value = "leaflet-imageoverlay-rotated", version = "0.2.1")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
