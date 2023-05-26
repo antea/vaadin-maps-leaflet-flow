@@ -5,5 +5,5 @@ import 'leaflet/dist/leaflet.js';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import '@geoman-io/leaflet-geoman-free';
 import 'leaflet-mouse-position/src/L.Control.MousePosition.js';
+import 'leaflet-imageoverlay-rotated/Leaflet.ImageOverlay.Rotated.js';
 import 'leaflet.browser.print/dist/leaflet.browser.print.min.js';
-

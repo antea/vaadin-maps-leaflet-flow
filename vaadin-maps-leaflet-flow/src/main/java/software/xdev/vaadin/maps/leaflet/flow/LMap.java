@@ -20,6 +20,10 @@ package software.xdev.vaadin.maps.leaflet.flow;
 import static java.lang.Long.parseLong;
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +62,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
+@NpmPackage(value = "leaflet-imageoverlay-rotated", version = "0.2.1")
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -108,6 +113,20 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(CLIENT_GLOBAL_MCG + "="
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
+		
+		
+		String filePath = "JavaScript/SvgOverlay.js";
+		String jsCode = null;
+		
+		try {
+			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		if(jsCode != null){
+			this.getElement().executeJs(jsCode);
+		}
 		
 		// display map coordinates of mouse position
 		this.enableMousePosition();
@@ -378,7 +397,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 		this.getElement().executeJs(
 			CLIENT_MAP + ".pm.addControls({  \n"
 				+ "  position: 'topleft',  \n"
-				//+ "  drawCircle: false,  \n"
+				+ "  drawCircle: false,  \n"
+				+ "  drawPolygon: false,  \n"
+				+ "  drawText: false,  \n"
+				+ "  drawCircleMarker: false,  \n"
 				+ "}); "
 				+ "let addMarkerToClusterGroup = (layer) => "+ CLIENT_GLOBAL_MCG +".addLayer(layer);\n"// I did this because this.markerClusterGroup is undefined in the callback bellow (because it's an event listener)
 				+ "const vaadinServer = this.$server;\n"
