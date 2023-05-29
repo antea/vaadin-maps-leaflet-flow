@@ -13,17 +13,24 @@ public class LImageOverlay implements LComponent{
 	
 	// default constructor spawns hardcoded image
 	public LImageOverlay() {
+		this.imagePath = "\"frontend/leaflet/cb17-100-median-age.svg\"";
+	}
 	
+	public LImageOverlay(String imagePath) {
+		this.imagePath = imagePath;
 	}
 	
 	public LImageOverlay(String imagePath, double[] topLeft, double[] topRight, double[] bottomLeft) {
-	
+		this.imagePath = imagePath;
+		this.topLeft = topLeft;
+		this.topRight = topRight;
+		this.bottomLeft = bottomLeft;
 	}
 	
 	@Override
 	public String buildClientJSItems() throws JsonProcessingException
 	{
-		return "let item = L.distortableImageOverlay(\"frontend/leaflet/cb17-100-median-age.svg\");";
+		return "let item = L.distortableImageOverlay("+ imagePath +");";
 	}
 	
 	@Override
