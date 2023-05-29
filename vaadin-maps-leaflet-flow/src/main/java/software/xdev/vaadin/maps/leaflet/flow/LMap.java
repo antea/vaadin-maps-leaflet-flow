@@ -62,12 +62,8 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
 @NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 @NpmPackage(value = "leaflet-mouse-position", version = "1.2.0")
-<<<<<<< HEAD
-@NpmPackage(value = "leaflet-imageoverlay-rotated", version = "0.2.1")
-=======
 @NpmPackage(value = "leaflet-toolbar", version = "0.4.0-alpha.2") // I added this because of this error: https://github.com/publiclab/Leaflet.DistortableImage/issues/714#issuecomment-681156197
 @NpmPackage(value = "leaflet-distortableimage", version = "0.21.9")
->>>>>>> 09a1a3c5b618b80fda766dc1d194dbff36289785
 @Tag("leaflet-map")
 // If I import Leaflet and leaflet.markercluster separately I get this error https://stackoverflow.com/questions/44479562/l-is-not-defined-error-with-leaflet
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
@@ -193,10 +189,6 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	public void enableMousePosition() {
 		this.getElement().executeJs("L.control.mousePosition({prefix: 'Coordinates: '}).addTo("
 			+ CLIENT_MAP + ");");
-	}
-	
-	public void executeMapJs(String jsCode) {
-		this.getElement().executeJs(jsCode);
 	}
 	
 	/**

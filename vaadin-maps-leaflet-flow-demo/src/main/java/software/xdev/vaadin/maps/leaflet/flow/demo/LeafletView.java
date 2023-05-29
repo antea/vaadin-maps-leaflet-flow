@@ -138,7 +138,7 @@ public class LeafletView extends VerticalLayout
 	private void btnImageClick(final ClickEvent<Button> event) {
 		LImageOverlay image = new LImageOverlay();
 		try {
-			this.map.executeMapJs(image.buildClientJSItems());
+			this.map.addLComponents(true, image);
 			Notification.show("Image added");
 		}
 		
