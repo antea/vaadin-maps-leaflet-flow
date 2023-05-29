@@ -28,6 +28,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LCircle;
 import software.xdev.vaadin.maps.leaflet.flow.data.LComponent;
 import software.xdev.vaadin.maps.leaflet.flow.data.LDivIcon;
 import software.xdev.vaadin.maps.leaflet.flow.data.LIcon;
+import software.xdev.vaadin.maps.leaflet.flow.data.LImageOverlay;
 import software.xdev.vaadin.maps.leaflet.flow.data.LMarker;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPoint;
 import software.xdev.vaadin.maps.leaflet.flow.data.LPolygon;
@@ -49,6 +50,7 @@ public class LeafletView extends VerticalLayout
 	private final Button btnLunch = new Button("Where do XDEV employees go for lunch?");
 	private final Button btnCenter = new Button("Center on Caribbean");
 	private final Button clusterButton = new Button("Configure");
+	private final Button btnAddImage = new Button("Add Image");
 	private final TextField clusterPixels = new TextField();
 	private LMap map;
 	
@@ -76,6 +78,7 @@ public class LeafletView extends VerticalLayout
 		
 		this.btnLunch.addClickListener(this::btnLunchClick);
 		this.clusterButton.addClickListener(this::clusterButtonClick);
+		this.btnAddImage.addClickListener(this::btnImageClick);
 		
 		// TextField used to configure marker cluster radius
 		this.clusterPixels.setPlaceholder("Cluster Radius (px)");
@@ -124,11 +127,24 @@ public class LeafletView extends VerticalLayout
 				
 				icoClose.addClickListener(iev -> dialog.close());
 			}),
+			btnAddImage,
 			clusterConfiguration
 		);
 		this.btnCenter.addClickListener(e-> map.centerAndZoom(new LPoint(14.467727, -61.69703), new LPoint(16.33426,-60.921676)));
 		this.add(this.map, hlButtonContainer);
 		this.setSizeFull();
+	}
+	
+	private void btnImageClick(final ClickEvent<Button> event) {
+		LImageOverlay image = new LImageOverlay();
+		try {
+			this.map.addLComponents(true, image);
+			Notification.show("Image added");
+		}
+		
+		catch (final Exception e) {
+			Notification.show(e.toString());
+		}
 	}
 	
 	// Event listener to change marker cluster radius
