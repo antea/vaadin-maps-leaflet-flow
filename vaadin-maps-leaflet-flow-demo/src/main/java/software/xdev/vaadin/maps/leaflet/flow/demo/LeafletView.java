@@ -49,6 +49,7 @@ public class LeafletView extends VerticalLayout
 	private final Button btnLunch = new Button("Where do XDEV employees go for lunch?");
 	private final Button btnCenter = new Button("Center on Caribbean");
 	private final Button clusterButton = new Button("Configure");
+	private final Button btnAddImage = new Button("Add Image");
 	private final TextField clusterPixels = new TextField();
 	private LMap map;
 	
@@ -124,6 +125,7 @@ public class LeafletView extends VerticalLayout
 				
 				icoClose.addClickListener(iev -> dialog.close());
 			}),
+			btnAddImage,
 			clusterConfiguration
 		);
 		this.btnCenter.addClickListener(e-> map.centerAndZoom(new LPoint(14.467727, -61.69703), new LPoint(16.33426,-60.921676)));
