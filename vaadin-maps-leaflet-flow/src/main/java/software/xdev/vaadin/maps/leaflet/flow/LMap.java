@@ -115,18 +115,18 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 		
 		
-		String filePath = "JavaScript/SvgOverlay.js";
-		String jsCode = null;
-		
-		try {
-			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
-		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-		
-		if(jsCode != null){
-			this.getElement().executeJs(jsCode);
-		}
+		// String filePath = "JavaScript/SvgOverlay.js";
+		// String jsCode = null;
+		//
+		// try {
+		// 	jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		// } catch (IOException | URISyntaxException e) {
+		// 	e.printStackTrace();
+		// }
+		//
+		// if(jsCode != null){
+		// 	this.getElement().executeJs(jsCode);
+		// }
 		
 		// display map coordinates of mouse position
 		this.enableMousePosition();
@@ -186,6 +186,10 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 	public void enableMousePosition() {
 		this.getElement().executeJs("L.control.mousePosition({prefix: 'Coordinates: '}).addTo("
 			+ CLIENT_MAP + ");");
+	}
+	
+	public void executeMapJs(String jsCode) {
+		this.getElement().executeJs(jsCode);
 	}
 	
 	/**
