@@ -131,6 +131,23 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>java</executable>
+					<longClasspath>true</longClasspath>
+					<classpathScope>runtime</classpathScope>
+					<mainClass>software.xdev.vaadin.Application</mainClass>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
