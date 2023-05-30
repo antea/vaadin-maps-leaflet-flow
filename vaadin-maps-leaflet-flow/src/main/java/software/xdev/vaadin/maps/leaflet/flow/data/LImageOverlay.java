@@ -22,25 +22,38 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class LImageOverlay implements LComponent{
 	private String imagePath;
-	private double[] topLeft;
-	private double[] topRight;
-	private double[] bottomLeft;
+	private double[] nw;
+	private double[] ne;
+	private double[] sw;
+	private double[] se;
 	
 	public LImageOverlay(String imagePath) {
 		this.imagePath = imagePath;
 	}
 	
-	public LImageOverlay(String imagePath, double[] topLeft, double[] topRight, double[] bottomLeft) {
+	public LImageOverlay(String imagePath, double[] nw, double[] ne, double[] sw, double[] se) {
 		this.imagePath = imagePath;
-		this.topLeft = topLeft;
-		this.topRight = topRight;
-		this.bottomLeft = bottomLeft;
+		this.nw = nw;
+		this.ne = ne;
+		this.sw = sw;
+		this.se = se;
 	}
 	
 	@Override
 	public String buildClientJSItems() throws JsonProcessingException
 	{
-		return "let item = L.distortableImageOverlay('"+ imagePath +"');";
+		return "let item = L.distortableImageOverlay("
+			+ "'"+ imagePath +"'"
+			+ (this.nw != null? ","
+			+ "{\n"
+			+ "    corners: [\n"
+			+ "        L.latLng("+this.nw[0]+","+this.nw[1]+"),\n"
+			+ "        L.latLng("+this.ne[0]+","+this.ne[1]+"),\n"
+			+ "        L.latLng("+this.sw[0]+","+this.sw[1]+"),\n"
+			+ "        L.latLng("+this.se[0]+","+this.se[1]+"),\n"
+			+ "    ],\n"
+			+ "}" : "")
+			+ ");";
 	}
 	
 	@Override

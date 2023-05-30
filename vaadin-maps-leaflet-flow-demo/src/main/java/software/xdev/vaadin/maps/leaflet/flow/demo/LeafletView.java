@@ -138,7 +138,11 @@ public class LeafletView extends VerticalLayout
 	
 	private void btnUsaMapClick(final ClickEvent<Button> event) {
 		try {
-			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/cb17-100-median-age.svg"));
+			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/cb17-100-median-age.svg",
+				new double[]{49.923578,-123.453116},
+				new double[]{49.923578, -57.619317},
+				new double[]{-0.308849, -123.453116},
+				new double[]{-0.308849,-57.619317}));
 			Notification.show("USA map added");
 		}
 		
@@ -149,7 +153,11 @@ public class LeafletView extends VerticalLayout
 	
 	private void btnPIDClick(final ClickEvent<Button> event) {
 		try {
-			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/0020-GD-A-62906.svg"));
+			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/0020-GD-A-62906.svg",
+				new double[]{49.923578,-123.453116},
+				new double[]{49.923578, -57.619317},
+				new double[]{-0.308849, -123.453116},
+				new double[]{-0.308849,-57.619317}));
 			Notification.show("PID added");
 		}
 		
@@ -279,14 +287,15 @@ public class LeafletView extends VerticalLayout
 		
 		this.map = new LMap(49.675126, 12.160733, 17);
 		
-		//this.map.setTileLayer(LTileLayer.DEFAULT_OPENSTREETMAP_TILE);
+		this.map.setTileLayer(LTileLayer.DEFAULT_OPENSTREETMAP_TILE);
 		
-		LTileLayer wmsTileLayer = new LTileLayer(
-			"http://ows.mundialis.de/services/service?",
-			"placeHolderAttribution", 18);
-		wmsTileLayer.setWmsLayer("TOPO-OSM-WMS");
-		
-		this.map.setTileLayer(wmsTileLayer);
+		// TO USE WMS
+		// LTileLayer wmsTileLayer = new LTileLayer(
+		// 	"http://ows.mundialis.de/services/service?",
+		// 	"placeHolderAttribution", 18);
+		// wmsTileLayer.setWmsLayer("TOPO-OSM-WMS");
+		//
+		// this.map.setTileLayer(wmsTileLayer);
 		
 		this.map.setSizeFull();
 		// add some logic here for called Markers (token)
