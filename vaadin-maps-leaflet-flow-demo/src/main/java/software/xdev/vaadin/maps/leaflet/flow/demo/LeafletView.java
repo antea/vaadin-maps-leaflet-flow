@@ -153,11 +153,7 @@ public class LeafletView extends VerticalLayout
 	
 	private void btnPIDClick(final ClickEvent<Button> event) {
 		try {
-			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/0020-GD-A-62906.svg",
-				new double[]{49.923578,-123.453116},
-				new double[]{49.923578, -57.619317},
-				new double[]{-0.308849, -123.453116},
-				new double[]{-0.308849,-57.619317}));
+			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/SVGTEST.svg"));
 			Notification.show("PID added");
 		}
 		
