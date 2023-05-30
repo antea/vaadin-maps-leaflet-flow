@@ -20,7 +20,6 @@ import com.vaadin.flow.router.Route;
 import software.xdev.vaadin.data.entity.Marker;
 import software.xdev.vaadin.data.entity.Polyline;
 import software.xdev.vaadin.data.entity.Rectangle;
-import software.xdev.vaadin.data.repository.PolylineRepository;
 import software.xdev.vaadin.data.service.DbService;
 import software.xdev.vaadin.maps.leaflet.flow.LMap;
 import software.xdev.vaadin.maps.leaflet.flow.data.LCenter;
@@ -50,7 +49,8 @@ public class LeafletView extends VerticalLayout
 	private final Button btnLunch = new Button("Where do XDEV employees go for lunch?");
 	private final Button btnCenter = new Button("Center on Caribbean");
 	private final Button clusterButton = new Button("Configure");
-	private final Button btnAddImage = new Button("Add Image");
+	private final Button btnAddUsaMap = new Button("Add USA map");
+	private final Button btnAddPID = new Button("Add PID");
 	private final TextField clusterPixels = new TextField();
 	private LMap map;
 	
@@ -78,7 +78,8 @@ public class LeafletView extends VerticalLayout
 		
 		this.btnLunch.addClickListener(this::btnLunchClick);
 		this.clusterButton.addClickListener(this::clusterButtonClick);
-		this.btnAddImage.addClickListener(this::btnImageClick);
+		this.btnAddUsaMap.addClickListener(this::btnUsaMapClick);
+		this.btnAddPID.addClickListener(this::btnPIDClick);
 		
 		// TextField used to configure marker cluster radius
 		this.clusterPixels.setPlaceholder("Cluster Radius (px)");
@@ -127,7 +128,7 @@ public class LeafletView extends VerticalLayout
 				
 				icoClose.addClickListener(iev -> dialog.close());
 			}),
-			btnAddImage,
+			btnAddUsaMap,btnAddPID,
 			clusterConfiguration
 		);
 		this.btnCenter.addClickListener(e-> map.centerAndZoom(new LPoint(14.467727, -61.69703), new LPoint(16.33426,-60.921676)));
@@ -135,11 +136,21 @@ public class LeafletView extends VerticalLayout
 		this.setSizeFull();
 	}
 	
-	private void btnImageClick(final ClickEvent<Button> event) {
-		LImageOverlay image = new LImageOverlay();
+	private void btnUsaMapClick(final ClickEvent<Button> event) {
 		try {
-			this.map.addLComponents(true, image);
-			Notification.show("Image added");
+			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/cb17-100-median-age.svg"));
+			Notification.show("USA map added");
+		}
+		
+		catch (final Exception e) {
+			Notification.show(e.toString());
+		}
+	}
+	
+	private void btnPIDClick(final ClickEvent<Button> event) {
+		try {
+			this.map.addLComponents(true, new LImageOverlay("frontend/leaflet/0020-GD-A-62906.svg"));
+			Notification.show("PID added");
 		}
 		
 		catch (final Exception e) {
