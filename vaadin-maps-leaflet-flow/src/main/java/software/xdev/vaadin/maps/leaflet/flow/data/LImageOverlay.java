@@ -44,15 +44,16 @@ public class LImageOverlay implements LComponent{
 	{
 		return "let item = L.distortableImageOverlay("
 			+ "'"+ imagePath +"'"
-			+ (this.nw != null? ","
+			+ ","
 			+ "{\n"
-			+ "    corners: [\n"
+			+ "actions: [L.DragAction, L.ScaleAction, L.DistortAction, L.RotateAction, L.FreeRotateAction, L.LockAction, L.OpacityAction, L.BorderAction, L.ExportAction, L.DeleteAction],"
+			+ (this.nw != null? "    corners: [\n"
 			+ "        L.latLng("+this.nw[0]+","+this.nw[1]+"),\n"
 			+ "        L.latLng("+this.ne[0]+","+this.ne[1]+"),\n"
 			+ "        L.latLng("+this.sw[0]+","+this.sw[1]+"),\n"
 			+ "        L.latLng("+this.se[0]+","+this.se[1]+"),\n"
-			+ "    ],\n"
-			+ "}" : "")
+			+ "    ],\n" : "")
+			+ "}"
 			+ ");";
 	}
 	
