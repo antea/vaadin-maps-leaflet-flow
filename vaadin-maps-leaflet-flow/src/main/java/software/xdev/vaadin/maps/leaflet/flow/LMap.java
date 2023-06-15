@@ -20,6 +20,10 @@ package software.xdev.vaadin.maps.leaflet.flow;
 import static java.lang.Long.parseLong;
 import static org.apache.commons.text.StringEscapeUtils.escapeEcmaScript;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,7 +67,7 @@ import software.xdev.vaadin.maps.leaflet.flow.data.LTileLayer;
 // because vaadin has a bug that does not guarantee that the imports will be in the same order as defined with @JsModule
 // Here is the bug issue: https://github.com/vaadin/flow/issues/15825
 @JsModule("./leaflet/import-leaflet-with-plugins.js")
-@JsModule("./leaflet/PDFLayer.js")
+//@JsModule("./leaflet/PDFLayer.js")
 // importing the leaflet css
 @CssImport("leaflet/dist/leaflet.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
@@ -110,18 +114,16 @@ public class LMap extends Component implements HasSize, HasStyle, HasComponents
 			+ "L.markerClusterGroup();\n"
 			+ CLIENT_MAP + ".addLayer(" + CLIENT_GLOBAL_MCG + ");");
 		
-		this.getElement().executeJs("PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS"
-			+ ".version}/pdf.worker.js`;\n"
-			+ "new PDFLayer({\n"
-			+ "  pdf: \"https://www.africau.edu/images/default/sample.pdf\",\n"
-			+ "  page: 1,\n"
-			+ "  minZoom: "+ CLIENT_MAP +".getMinZoom(),\n"
-			+ "  maxZoom: "+ CLIENT_MAP +".getMaxZoom(),\n"
-			+ "  bounds: new L.LatLngBounds([-0.308849, -123.453116], [49.923578, -57.619317]),\n"
-			+ "  attribution:\n"
-			+ "    '<a href=\"https://census.gov/newsroom/press-releases/2017/cb17-100.html\">U.S. Census "
-			+ "Bureau</a>'\n"
-			+ "}).addTo("+ CLIENT_MAP +");");
+		String filePath = "JavaScript/GridLayer.js";
+		String jsCode = null;
+		
+		try {
+			jsCode = Files.readString(Paths.get(ClassLoader.getSystemResource(filePath).toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		this.getElement().executeJs(jsCode);
 		
 		// display map coordinates of mouse position
 		this.enableMousePosition();
