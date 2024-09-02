@@ -36,6 +36,7 @@ import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LVideoOverlay;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LVideoOverlayOptions;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerClusterGroup;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LCircle;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LCircleOptions;
@@ -81,23 +82,23 @@ public class ComplexDemo extends AbstractDemo
 			"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'",
 			19,
 			"&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, Tiles style by"
-				+ " <a href=\"https://www.hotosm.org/\" target=\"_blank\">Humanitarian OpenStreetMap Team</a> hosted "
-				+ "by <a href=\"https://openstreetmap.fr/\" target=\"_blank\">OpenStreetMap France</a>"
+			+ " <a href=\"https://www.hotosm.org/\" target=\"_blank\">Humanitarian OpenStreetMap Team</a> hosted "
+			+ "by <a href=\"https://openstreetmap.fr/\" target=\"_blank\">OpenStreetMap France</a>"
 		);
 		final LTileLayer tlTopo = new LTileLayer(
 			this.reg,
 			"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
 			16,
 			"Map data: &copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, <a "
-				+ "href=\"http://viewfinderpanoramas.org\">SRTM</a> | Map style: &copy; <a href=\"https://opentopomap"
-				+ ".org\">OpenTopoMap</a> (<a href=\"https://creativecommons.org/licenses/by-sa/3.0/\">CC-BY-SA</a>"
+			+ "href=\"http://viewfinderpanoramas.org\">SRTM</a> | Map style: &copy; <a href=\"https://opentopomap"
+			+ ".org\">OpenTopoMap</a> (<a href=\"https://creativecommons.org/licenses/by-sa/3.0/\">CC-BY-SA</a>"
 		);
 		
 		final LDivIcon divIconInfo = new LDivIcon(this.reg, new LDivIconOptions()
 			.withHtml(" <div style=\"white-space:nowrap; padding: 0.5em\">\n" +
-				"<center><b>Welcome to Weiden in der Oberpfalz!</b></center>\n" +
-				"This demo shows you different markers,<br> popups, polygons and other stuff" +
-				"</div>")
+					  "<center><b>Welcome to Weiden in der Oberpfalz!</b></center>\n" +
+					  "This demo shows you different markers,<br> popups, polygons and other stuff" +
+					  "</div>")
 			// Set the icon size to unlimited otherwise the div collapses
 			.withIconSize(new LPoint(this.reg, -1, -1)));
 		final LMarker markerInfo = new LMarker(
@@ -107,16 +108,30 @@ public class ComplexDemo extends AbstractDemo
 		
 		@SuppressWarnings("checkstyle:LineLength")
 		final LIcon iconXDEV = new LIcon(this.reg, new LIconOptions()
-			.withIconUrl("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1000\" height=\"200\" viewBox=\"0 0 18300 4500\" style=\"background-color:rgba(180,180,180,0.7)\">"+
-				  "<defs>\n"+
-				    "<style>\n"+
-				      ".fil0{fill:%23d71e23}\n"+
-				    "</style>\n"+
-				  "</defs>\n"+
-				  "<g>\n"+
-				    "<path class=\"fil0\" d=\"M9763 10965h-920l-17-6-1503-588-1506 588-11 4-13 2-1562 148-1102 105 1064-369 2311-801-1638-633-683-263h1609l16 6 1515 588 1521-588 10-4 9-1 1388-211 1177-178-1131 441-2177 849 1675 647 682 264zM25514 9520l-1909 1442-22 17h-693l-23-19-1765-1440-285-233h907l22 17 1490 1178 1395-1177 23-19h1171zM20426 10961h-4015V9260h4126l-1 127-1 99v126h-112l-3041-3 2 322 3038 3h110l2 124 1 83 2 128h-3146v352l3035-6h112v346z\" transform=\"translate(-5400 -7700)\"/>\n"+
-				    "<path class=\"fil0\" d=\"M10994 9275h2026a12150 12150 0 0 1 1368 73c292 35 559 83 798 143h1c290 73 510 158 659 254 165 106 248 229 248 368 0 134-85 254-254 359-151 94-375 180-672 256-292 76-618 132-977 170-359 37-751 56-1174 56h-2102V9275h79zm917 1354h1106c300 0 574-14 822-41 247-27 469-67 665-121h1a2470 2470 0 0 0 277-96c176-79 264-164 264-256 0-60-39-118-117-173-92-66-234-125-425-178-197-55-418-96-665-123-248-27-522-41-822-41h-1106v1029z\" transform=\"translate(-5400 -7700)\"/>\n"+
-				  "</g>\n"+
+			.withIconUrl(
+				"data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1000\" height=\"200\" "
+				+ "viewBox=\"0 0 18300 4500\" style=\"background-color:rgba(180,180,180,0.7)\">"
+				+
+				"<defs>\n" +
+				"<style>\n" +
+				".fil0{fill:%23d71e23}\n" +
+				"</style>\n" +
+				"</defs>\n" +
+				"<g>\n" +
+				"<path class=\"fil0\" d=\"M9763 10965h-920l-17-6-1503-588-1506 588-11 4-13 2-1562 148-1102 105 "
+				+ "1064-369 2311-801-1638-633-683-263h1609l16 6 1515 588 1521-588 10-4 9-1 1388-211 1177-178-1131 "
+				+ "441-2177 849 1675 647 682 264zM25514 9520l-1909 1442-22 17h-693l-23-19-1765-1440-285-233h907l22 17 "
+				+ "1490 1178 1395-1177 23-19h1171zM20426 10961h-4015V9260h4126l-1 127-1 99v126h-112l-3041-3 2 322 3038"
+				+ " 3h110l2 124 1 83 2 128h-3146v352l3035-6h112v346z\" transform=\"translate(-5400 -7700)\"/>\n"
+				+
+				"<path class=\"fil0\" d=\"M10994 9275h2026a12150 12150 0 0 1 1368 73c292 35 559 83 798 143h1c290 73 "
+				+ "510 158 659 254 165 106 248 229 248 368 0 134-85 254-254 359-151 94-375 180-672 256-292 76-618 "
+				+ "132-977 170-359 37-751 56-1174 56h-2102V9275h79zm917 1354h1106c300 0 574-14 822-41 247-27 469-67 "
+				+ "665-121h1a2470 2470 0 0 0 277-96c176-79 264-164 264-256 "
+				+ "0-60-39-118-117-173-92-66-234-125-425-178-197-55-418-96-665-123-248-27-522-41-822-41h-1106v1029z\" "
+				+ "transform=\"translate(-5400 -7700)\"/>\n"
+				+
+				"</g>\n" +
 				"</svg>")
 			.withIconSize(new LPoint(this.reg, 125, 25)));
 		
@@ -163,15 +178,15 @@ public class ComplexDemo extends AbstractDemo
 			.addLayer(markerXDEV)
 			.addLayer(polygonNOC)
 			.addLayer(markerInfo);
-		final LLayerGroup lLayerGroupFood =
-			new LLayerGroup(this.reg, markerPizza, markerSchnitzel, circleFood, polylineToSchnitzel);
 		
+		final LMarkerClusterGroup lMarkerClusterGroup = new LMarkerClusterGroup(this.reg);
+		lMarkerClusterGroup.addLayers(markerPizza, markerSchnitzel, circleFood, polylineToSchnitzel);
 		// Add default layers
 		this.map
 			.addLayer(tlOSM)
 			.addLayer(lLayerGroupPlaces);
 		
-		this.addControls(tlOSM, tlOSMHOT, tlTopo, lLayerGroupPlaces, lLayerGroupFood);
+		this.addControls(tlOSM, tlOSMHOT, tlTopo, lLayerGroupPlaces, lMarkerClusterGroup);
 		
 		this.hlButtons.setWidthFull();
 		this.add(this.hlButtons);
@@ -240,20 +255,20 @@ public class ComplexDemo extends AbstractDemo
 		this.map.on(
 			"locationerror",
 			"e => alert('Failed to locate: ' "
-				+ "+ '\\nCode: ' + e.code "
-				+ "+ '\\nMessage: ' + e.message"
-				+ ")");
+			+ "+ '\\nCode: ' + e.code "
+			+ "+ '\\nMessage: ' + e.message"
+			+ ")");
 		this.map.on(
 			"locationfound",
 			"e => alert('Location successful: '"
-				+ "+ '\\nLocation: ' + e.latlng "
-				+ "+ '\\nBounds: ' + e.bounds?.getNorthWest() + ' ' + e.bounds?.getSouthEast() "
-				+ "+ '\\nAccuracy(m): ' + e.accuracy "
-				+ "+ '\\nAltitude(m): ' + e.altitude "
-				+ "+ '\\nAltitudeAccuracy(m): ' + e.altitudeAccuracy "
-				+ "+ '\\nHeading: ' + e.heading"
-				+ "+ '\\nSpeed: ' + e.speed "
-				+ ")");
+			+ "+ '\\nLocation: ' + e.latlng "
+			+ "+ '\\nBounds: ' + e.bounds?.getNorthWest() + ' ' + e.bounds?.getSouthEast() "
+			+ "+ '\\nAccuracy(m): ' + e.accuracy "
+			+ "+ '\\nAltitude(m): ' + e.altitude "
+			+ "+ '\\nAltitudeAccuracy(m): ' + e.altitudeAccuracy "
+			+ "+ '\\nHeading: ' + e.heading"
+			+ "+ '\\nSpeed: ' + e.speed "
+			+ ")");
 		this.hlButtons.add(new Button("Locate", ev -> this.map.locate(new LMapLocateOptions().withSetView(true))));
 	}
 	
@@ -346,11 +361,11 @@ public class ComplexDemo extends AbstractDemo
 			));
 		final String imageLink =
 			"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Building_and_ship_comparison_to_the_Pentagon2"
-				+ ".svg/260px-Building_and_ship_comparison_to_the_Pentagon2.svg.png";
+			+ ".svg/260px-Building_and_ship_comparison_to_the_Pentagon2.svg.png";
 		pentagon.bindPopup("<a href='https://en.wikipedia.org/wiki/The_Pentagon' target='_blank'>"
-			+ "<center><b>The Pentagon</b></center><br>"
-			+ "<img style='width:12em' src='" + imageLink + "'>"
-			+ "</a>");
+						   + "<center><b>The Pentagon</b></center><br>"
+						   + "<img style='width:12em' src='" + imageLink + "'>"
+						   + "</a>");
 		this.hlButtons.add(this.createToggleButton(
 			"Show complex polygon",
 			"Hide complex polygon",

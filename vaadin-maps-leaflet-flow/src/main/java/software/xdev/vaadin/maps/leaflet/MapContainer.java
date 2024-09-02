@@ -38,10 +38,17 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 /**
  * Component that contains a {@link LMap} and all required client side dependencies for Vaadin.
  */
+
 @NpmPackage(value = "leaflet", version = "1.9.4")
-@Tag("leaflet-map")
-@JsModule("leaflet/dist/leaflet.js")
+@NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
+// We cannot import Leaflet and the plugins using many @JsModule annotations, because Vaadin has a bug that does not
+// guarantee that the imports will be in the same order as defined with @JsModule: https://github.com/vaadin/flow/issues/15825
+@JsModule("./leaflet/import-leaflet-with-plugins.js")
+
 @CssImport("leaflet/dist/leaflet.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
+@CssImport("leaflet.markercluster/dist/MarkerCluster.css")
+@Tag("leaflet-map")
 public class MapContainer extends Composite<Div> implements HasSize, HasStyle, HasComponents, HasText
 {
 	private final LMap lMap;

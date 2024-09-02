@@ -27,25 +27,42 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
  */
 public class LLayerGroup extends LLayer<LLayerGroup> implements LHasSetZIndex<LLayerGroup>
 {
-	public LLayerGroup(
+	protected LLayerGroup(
+		final String  jsConstructorCallExpression,
 		final LComponentManagementRegistry compReg,
 		final LLayer<?>[] layers,
 		final LLayerOptions<?>[] options)
 	{
 		super(
 			compReg,
-			"L.layerGroup("
-				+ (layers != null
+			jsConstructorCallExpression + "("
+			+ (layers != null && layers.length > 0
 				? "[" + Stream.of(layers)
 				.map(LLayer::clientComponentJsAccessor)
 				.collect(Collectors.joining(",")) + "]"
 				: "")
-				+ (options != null
+			+ (options != null
 				? ", [" + Stream.of(options)
 				.map(compReg::writeOptionsOrEmptyObject)
 				.collect(Collectors.joining(",")) + "]"
 				: "")
-				+ ")");
+			+ ")");
+	}
+	
+	protected LLayerGroup(
+		final String  jsConstructorCallExpression,
+		final LComponentManagementRegistry compReg,
+		final LLayer<?>... layers)
+	{
+		this(jsConstructorCallExpression, compReg, layers, null);
+	}
+	
+	public LLayerGroup(
+		final LComponentManagementRegistry compReg,
+		final LLayer<?>[] layers,
+		final LLayerOptions<?>[] options)
+	{
+		this("L.layerGroup", compReg, layers, options);
 	}
 	
 	public LLayerGroup(
