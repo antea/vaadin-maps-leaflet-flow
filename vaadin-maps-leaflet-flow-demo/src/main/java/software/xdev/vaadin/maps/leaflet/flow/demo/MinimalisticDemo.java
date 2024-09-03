@@ -5,6 +5,8 @@ import com.vaadin.flow.router.Route;
 
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
+import software.xdev.vaadin.maps.leaflet.controls.LGeomanOptions;
+import software.xdev.vaadin.maps.leaflet.controls.LGeomanUtils;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
@@ -36,6 +38,12 @@ public class MinimalisticDemo extends VerticalLayout
 		
 		// Add a (default) TileLayer so that we can see something on the map
 		map.addLayer(LTileLayer.createDefaultForOpenStreetMapTileServer(reg));
+		
+		final LGeomanOptions geomanOptions = new LGeomanOptions();
+		geomanOptions.setPosition(LGeomanOptions.POSITION_TOP_RIGHT);
+		// let's hide the button to create circle markers
+		geomanOptions.setDrawCircleMarker(false);
+		LGeomanUtils.addToolbar(map, reg, geomanOptions);
 		
 		// Set what part of the world should be shown
 		map.setView(new LLatLng(reg, 49.6751, 12.1607), 17);

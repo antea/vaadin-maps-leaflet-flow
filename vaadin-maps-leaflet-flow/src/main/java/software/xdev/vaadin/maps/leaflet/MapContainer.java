@@ -41,6 +41,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 @NpmPackage(value = "leaflet", version = "1.9.4")
 @NpmPackage(value = "leaflet.markercluster", version = "1.4.1")
+@NpmPackage(value = "@geoman-io/leaflet-geoman-free", version = "2.14.2")
 // We cannot import Leaflet and the plugins using many @JsModule annotations, because Vaadin has a bug that does not
 // guarantee that the imports will be in the same order as defined with @JsModule: https://github.com/vaadin/flow/issues/15825
 @JsModule("./leaflet/import-leaflet-with-plugins.js")
@@ -48,6 +49,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 @CssImport("leaflet/dist/leaflet.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.Default.css")
 @CssImport("leaflet.markercluster/dist/MarkerCluster.css")
+@CssImport("@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css")
 @Tag("leaflet-map")
 public class MapContainer extends Composite<Div> implements HasSize, HasStyle, HasComponents, HasText
 {
