@@ -17,7 +17,9 @@ package software.xdev.vaadin.maps.leaflet.map;
 
 import java.util.UUID;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 
 import software.xdev.vaadin.maps.leaflet.base.LBaseComponent;
 import software.xdev.vaadin.maps.leaflet.base.LEvented;
@@ -589,4 +591,5 @@ public class LMap extends LBaseComponent<LMap> implements LEvented<LMap>
 	}
 	
 	// endregion
+	
 }

@@ -40,4 +40,7 @@ public class LGeomanUtils
 	{
 		lMap.invokeSelf(".pm.addControls(" +  compReg.writeOptions(geomanOptions) + ")");
 	}
+	
+	
+	
 }

@@ -1,12 +1,12 @@
 package software.xdev.vaadin.maps.leaflet.flow.demo;
 
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-import software.xdev.vaadin.maps.leaflet.MapContainer;
+import software.xdev.vaadin.maps.leaflet.EditableMapContainer;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
 import software.xdev.vaadin.maps.leaflet.controls.LGeomanOptions;
-import software.xdev.vaadin.maps.leaflet.controls.LGeomanUtils;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
@@ -30,7 +30,7 @@ public class MinimalisticDemo extends VerticalLayout
 		final LComponentManagementRegistry reg = new LDefaultComponentManagementRegistry(this);
 		
 		// Create and add the MapContainer (which contains the map) to the UI
-		final MapContainer mapContainer = new MapContainer(reg);
+		final EditableMapContainer mapContainer = new EditableMapContainer(reg);
 		mapContainer.setSizeFull();
 		this.add(mapContainer);
 		
@@ -43,7 +43,10 @@ public class MinimalisticDemo extends VerticalLayout
 		geomanOptions.setPosition(LGeomanOptions.POSITION_TOP_RIGHT);
 		// let's hide the button to create circle markers
 		geomanOptions.setDrawCircleMarker(false);
-		LGeomanUtils.addToolbar(map, reg, geomanOptions);
+		mapContainer.addToolbar(geomanOptions);
+		mapContainer.addCreateListener(event -> Notification.show("ciao " + event.getShape()));
+		
+		
 		
 		// Set what part of the world should be shown
 		map.setView(new LLatLng(reg, 49.6751, 12.1607), 17);
@@ -56,3 +59,5 @@ public class MinimalisticDemo extends VerticalLayout
 			.addTo(map);
 	}
 }
+
+
